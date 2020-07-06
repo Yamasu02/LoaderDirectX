@@ -18,17 +18,17 @@ public:
     RECT rect = { 0 };
 
 
-    LPDIRECT3DTEXTURE9 imagetex; //textute our image will be loaded into
-    LPD3DXSPRITE sprite; //sprite to display our image
-    D3DXVECTOR3 imagepos; //vector for the position of the sprite
+    LPDIRECT3DTEXTURE9 imagetex; 
+    LPD3DXSPRITE sprite; 
+    D3DXVECTOR3 imagepos; 
 
     HRESULT InitializeTextureNsprite(LPCWSTR path)
     {
         D3DXCreateTextureFromFileW(d3dDevice, path, &imagetex);
         D3DXCreateSprite(d3dDevice, &sprite);
-        imagepos.x = 0.0f; //coord x of our sprite
-        imagepos.y = 0.0f; //coord y of out sprite
-        imagepos.z = 0.0f; //coord z of out sprite
+        imagepos.x = 0.0f; 
+        imagepos.y = 0.0f; 
+        imagepos.z = 0.0f; 
         return S_OK;
     }
 
@@ -42,7 +42,7 @@ public:
             d3dDevice->EndScene();
             return S_OK;
         }
-        return E_FAIL; //return it failed
+        return E_FAIL; 
     }
 
 
@@ -93,7 +93,7 @@ public:
         d3dDevice->Clear(0, 0, D3DCLEAR_TARGET, 111, 1.0f, 0);
         d3dDevice->BeginScene();
 
-        drawText((char*)"U got hacked broo", width / 10, height / 10, 255, 171, 0, 182);
+        drawText((char*)"reeeeeeeeee", width / 10, height / 10, 255, 171, 0, 182);
 
 
         d3dDevice->EndScene();
