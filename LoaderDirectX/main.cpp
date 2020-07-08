@@ -1,15 +1,9 @@
-
 #include "resource.h"
 #include "Direct2D.h"
 #include "Networking.h"
 
 
-
-
-
-
 const wstring ClassName = L"LoaderClass";
-
 
 
 
