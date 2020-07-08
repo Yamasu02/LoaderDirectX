@@ -1,5 +1,12 @@
 #pragma once
 
+
+#define WIN32_LEAN_AND_MEAN 
+#include <Windows.h>
+#include <Windowsx.h>
+#include <WinSock2.h>
+#include <iostream>
+
 typedef struct DXGI_JPEG_AC_HUFFMAN_TABLE
 {
     BYTE CodeCounts[16];
@@ -17,24 +24,22 @@ typedef struct DXGI_JPEG_QUANTIZATION_TABLE
     BYTE Elements[64];
 } DXGI_JPEG_QUANTIZATION_TABLE;
 
-#include <Windows.h>
-#include <iostream>
-#include <chrono>
 #include <d2d1.h>
 #include <d2d1helper.h>
 #include <dwrite.h>
-#include <iostream>
 #include <wincodec.h>
-#include <vector>
+#include <string>
 #include "resource.h"
+#include <ws2tcpip.h>
 
+#pragma comment(lib, "Ws2_32.lib")
 #pragma comment(lib,"d2d1.lib")
 #pragma comment(lib,"dwrite.lib")
 #pragma comment(lib,"windowscodecs.lib")
 
-#ifndef WINDOWS_LEAN_AND_MEAN
-#define WINDOWS_LEAN_AND_MEAN
-#endif 
+
+#include <locale > 
+#include <codecvt>
 
 
 
@@ -68,20 +73,16 @@ using namespace D2D1;
     FLOAT f1;
     FLOAT f2;
 
+
     IDWriteFactory* pDWriteFactory;
     IDWriteTextFormat* pTextFormat;
+    IDWriteTextFormat* pTextFormat2;
 
 
     POINT point;
 
     wstring EmailStr;
     wstring PasswordStr;
-
-    bool bTimebool = false;
-    bool bEmail = false;
-    bool bPassword = false;
-
-
 
 
     D2D1_RECT_F KeyBmp;
@@ -104,7 +105,23 @@ using namespace D2D1;
 
     HCURSOR hCursorHand;
     HCURSOR hCursorArrow;
-  
+
+
+    IDWriteTextFormat* pTextFormatNewUser = pTextFormat;
+    IDWriteTextFormat* pTextFormatSignIn = pTextFormat; 
+
+     
+    bool bTimebool = false;
+    bool bEmail = false;
+    bool bPassword = false;
+
+    bool pPushedNewUser = false;
+    bool pPushedSignIn = false;
+    bool bPushTimer = false;
+    bool bPushTimer2 = false;
+
+
+
     HRESULT LoadBitmapFromResource(int id, LPCWSTR type,ID2D1Bitmap** ppBitmap)
     {
         IWICBitmapDecoder* pDecoder = NULL;
@@ -234,6 +251,7 @@ using namespace D2D1;
     HRESULT CreateFormats()
     {
         hr = pDWriteFactory->CreateTextFormat(L"Comic Sans", NULL, DWRITE_FONT_WEIGHT_REGULAR, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 16.0f, L"en-us", &pTextFormat);
+        hr = pDWriteFactory->CreateTextFormat(L"Comic Sans", NULL, DWRITE_FONT_WEIGHT_REGULAR, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 14.5f, L"en-us", &pTextFormat2);
         return hr;
     }
 
@@ -267,14 +285,45 @@ using namespace D2D1;
     }
 
 
+    void SubmitSignIn()
+    {
 
+    }
 
+    void SubmitNewUser()
+    {
+
+    }
+    
     void Timer()
     {
         while (1)
         {
             bTimebool = !bTimebool;
-            Sleep(500);
+            Sleep(450);
+        }
+    }
+
+    void AnimationManager()
+    {
+        while (1)
+        {
+
+            if (pPushedNewUser)
+            {
+                bPushTimer = true;
+                Sleep(50);
+                bPushTimer = false;
+                SubmitNewUser();
+            }
+            else if (pPushedSignIn)
+            {
+                bPushTimer2 = true;
+                Sleep(50);
+                bPushTimer2= false;
+                SubmitSignIn();
+            }
+            Sleep(2);
         }
     }
 
@@ -293,6 +342,7 @@ using namespace D2D1;
         Email = { f1 / 2 - 200, f2 * 10 / 19 ,f1 / 2 + 200,  f2 * 11 / 19 + 20 };
         Or = { f1 / 2 - 180,f2 * 8 / 19 ,  f1 / 2 + 180,  f2 * 10 / 19 };
         Fpassword = { f1 / 2 - 90,f2 * 17 / 19   ,f1 / 2 + 90,f2 * 17 / 19 + 20 };
+
 
         KeyBmp = { f1 / 2 - 290, f2 * 11 / 19 + 40, f1 / 2 - 230 ,f2 * 12 / 19 + 60 };
         EmailBmp = { f1 / 2 - 290, f2 * 10 / 19, f1 / 2 - 230 , f2 * 11 / 19 + 20 };
@@ -382,42 +432,39 @@ using namespace D2D1;
         {
             DrawCursor({ Password.left + 10,Password.top + 3 }, { Password.left + 10,Password.bottom - 3 });
         }
-
-
     }
 
 
 
-
-
-    void MakeCheckBox(D2D1_RECT_F rect, ID2D1Brush* brush)
-    {
-        pRenderTarget->DrawRectangle(rect, brush);
-    }
 
     void FillCheckBox(D2D1_RECT_F rect, ID2D1Brush* brush)
     {
-        rect.left += (rect.right-rect.left)/7;
+        rect.left += (rect.right - rect.left) / 7;
         rect.right -= (rect.right - rect.left) / 7;
         rect.top += (rect.bottom - rect.top) / 7;
         rect.bottom -= (rect.bottom - rect.top) / 7;
         pRenderTarget->FillRectangle(rect, brush);
     }
-    
-    void MakeButtonAnimation(D2D1_RECT_F& rect)
+
+    void MakeCheckBox(D2D1_RECT_F& rect, ID2D1Brush* brush,bool& b)
     {
-        for (int x = 0; x <= 3; x++)
+        pRenderTarget->DrawRectangle(rect, brush);
+        if (b)
         {
-          
+            FillCheckBox(rect, brush);
         }
     }
 
-    void MakeSlider(D2D1_RECT_F rect, ID2D1Brush* pBrush)
+
+    
+
+
+    void MakeSlider(D2D1_RECT_F rect, ID2D1Brush* pBrush,bool& b)
     {
         D2D1_ROUNDED_RECT rounded = { rect,15,15 };
         pRenderTarget->DrawRoundedRectangle(rounded, pBrush);
         D2D1_ELLIPSE ellipse = { {rect.left + (rect.right - rect.left) / 4,rect.top + (rect.bottom - rect.top) / 2}, 15,15 };
-        if (GetAsyncKeyState(VK_TAB))
+        if (b)
         {
             ellipse.point = { rect.left + (rect.right - rect.left) * 3 / 4,rect.top + (rect.bottom - rect.top) / 2 };
             SetCursor(hCursorHand);
@@ -427,71 +474,80 @@ using namespace D2D1;
     }
 
 
-   
+    void MakeButtonAnimation(D2D1_ROUNDED_RECT& rect, IDWriteTextFormat* &pTextFormatE)
+    {
+        rect.rect.left += 20;
+        rect.rect.right -= 20;
+        rect.rect.top += 10;
+        rect.rect.bottom -= 10;
+        pTextFormatE = pTextFormat2;
+    }
 
 
     void draw(HWND hwnd)
     {
-
         Update(hwnd);
         CursorHandler(hwnd);
 
-
-        if (GetAsyncKeyState(VK_TAB))
-        {
-        NewUser.left += 25;
-        NewUser.right -= 25;
-        NewUser.top += 15;
-        NewUser.bottom -= 15;
-        ///Sleep(3000);
-        }
         pRenderTarget->BeginDraw();
-
         pRenderTarget->FillRectangle(&RectToD2DRect(rc), pLinearGradientBrush);
-
-
-
-        //MakeSlider({ 100,100,175,125 }, pWhiteBrush); 
-    
-        
-
-
 
         pRenderTarget->DrawBitmap(pBitmapBgr, RectToD2DRect(rc), 0.15);
         pRenderTarget->DrawBitmap(pBitmapKey, KeyBmp, 1);
         pRenderTarget->DrawBitmap(pBitmapEmail, EmailBmp, 1);
         pRenderTarget->DrawBitmap(pBitmapLock, LockBmp, 0.65);
 
-
         D2D1_POINT_2F p01 = { Or.left, Or.bottom * 0.9 };
         D2D1_POINT_2F p02 = { f1 / 2 - 20, Or.bottom * 0.9 };
         D2D1_POINT_2F p11 = { f1 / 2 + 20 ,Or.bottom * 0.9 };
         D2D1_POINT_2F p12 = { Or.right, Or.bottom * 0.9 };
 
+        pRenderTarget->DrawLine(p01, p02, pWhiteBrush, 0.3, NULL);
+        pRenderTarget->DrawLine(p11, p12, pWhiteBrush, 0.3, NULL);
 
-        
+        pTextFormatNewUser = pTextFormat;
+        pTextFormatSignIn = pTextFormat;
 
+        if (bPushTimer)
+        {
+            MakeButtonAnimation(RoundNewUser, pTextFormatNewUser);
+        }
 
+        if (bPushTimer2)
+        {
+            MakeButtonAnimation(RoundSignIn, pTextFormatSignIn);
+        }
 
         pRenderTarget->DrawRoundedRectangle(RoundEmail, pWhiteBrush, 1.1, 0);
         pRenderTarget->FillRoundedRectangle(RoundNewUser, pBlackBrush);
-        pRenderTarget->DrawLine(p01, p02, pWhiteBrush, 0.3, NULL);
-        pRenderTarget->DrawLine(p11, p12, pWhiteBrush, 0.3, NULL);
+
+
+
         pRenderTarget->DrawRoundedRectangle(RoundPassword, pWhiteBrush, 1.1, 0);
         pRenderTarget->FillRoundedRectangle(RoundSignIn, pBlackBrush);
 
 
         hr = pTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
         hr = pTextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
-        pRenderTarget->DrawTextW(L"Sign up as a new user", lstrlenW(L"Sign up as a new user"), pTextFormat, NewUser, pWhiteBrush);
-        pRenderTarget->DrawTextW(L"Sign in", lstrlenW(L"Sign in"), pTextFormat, SignIn, pWhiteBrush);
+    
+        hr = pTextFormat2->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+        hr = pTextFormat2->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+         pRenderTarget->DrawTextW(L"Sign up as a new user", lstrlenW(L"Sign up as a new user"), pTextFormatNewUser, NewUser, pWhiteBrush);
+        
+       
+        pRenderTarget->DrawTextW(L"Sign in", lstrlenW(L"Sign in"), pTextFormatSignIn, SignIn, pWhiteBrush);
         pRenderTarget->DrawTextW(L"or", lstrlenW(L"or"), pTextFormat, Or, pWhiteBrush);
         pRenderTarget->DrawTextW(L"Forgot your password?", lstrlenW(L"Forgot your password?"), pTextFormat, Fpassword, pWhiteBrush); 
         pRenderTarget->DrawLine({ f1 / 2 - 90,f2 * 17 / 19 + 25 }, { f1 / 2 + 90, f2 * 17 / 19 + 25 }, pWhiteBrush, 1.4, NULL);
 
-
+        pPushedNewUser = false;
+        pPushedSignIn = false;
 
         hr = pTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
+
+
+
+        ///////////////////////////
 
 
         if (!bEmail)
@@ -503,13 +559,8 @@ using namespace D2D1;
             pRenderTarget->DrawTextW(L" - Password", lstrlenW(L" - Password"), pTextFormat, Password, pSemiOpaqueBrush);
         }
 
-
-
         CursorTimer();
        
-
-
-
         if (!EmailStr.empty())
         {
             DrawTextInBox(Email, EmailStr);
@@ -520,12 +571,6 @@ using namespace D2D1;
              DrawTextInBox(Password, PasswordStr);
         }     
         
-
-
-
-
-        
-
 
          pRenderTarget->EndDraw();
      }
@@ -545,6 +590,9 @@ using namespace D2D1;
         pRenderTarget->Release();
         CoUninitialize();
     }
+
+
+
 
 
 

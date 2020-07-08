@@ -2,21 +2,20 @@
 
 #include <d3d9.h>
 #include <d3dx9.h>
-#include <Windows.h>
+
 
 #pragma comment(lib, "d3d9.lib")
 #pragma comment(lib, "d3dx9.lib")
 
 
-class Direct3D9
-{
-public:
+
     IDirect3D9Ex* d3dObject = NULL;
     IDirect3DDevice9Ex* d3dDevice = NULL;
     D3DPRESENT_PARAMETERS d3dparams;
     ID3DXFont* d3dFont = 0;
     RECT rect = { 0 };
-
+    D3DXVECTOR3 v1 = { 500,500,0 };
+    D3DXVECTOR3 v2 = {};
 
     LPDIRECT3DTEXTURE9 imagetex; 
     LPD3DXSPRITE sprite; 
@@ -24,8 +23,9 @@ public:
 
     HRESULT InitializeTextureNsprite(LPCWSTR path)
     {
-        D3DXCreateTextureFromFileW(d3dDevice, path, &imagetex);
-        D3DXCreateSprite(d3dDevice, &sprite);
+        hr = D3DXCreateTextureFromFileW(d3dDevice, path, &imagetex);
+        //D3DXCreateTextureFromResourceW(d3dDevice, NULL, L"email.png", &imagetex);
+        hr = D3DXCreateSprite(d3dDevice, &sprite);
         imagepos.x = 0.0f; 
         imagepos.y = 0.0f; 
         imagepos.z = 0.0f; 
@@ -37,7 +37,7 @@ public:
         if (SUCCEEDED(d3dDevice->BeginScene()))
         {
             sprite->Begin(D3DXSPRITE_ALPHABLEND);
-            sprite->Draw(imagetex, NULL, NULL, &imagepos, 0xFFFFFFFF);
+            hr = sprite->Draw(imagetex, NULL, NULL, &imagepos, 0xFFFFFFFF);
             sprite->End();
             d3dDevice->EndScene();
             return S_OK;
@@ -45,8 +45,9 @@ public:
         return E_FAIL; 
     }
 
+    
 
-    Direct3D9(HWND hwnd)
+    void Construct2(HWND hwnd)
     {
         GetWindowRect(hwnd, &rect);
         int width = rect.right - rect.left;
@@ -71,7 +72,7 @@ public:
         HRESULT res = d3dObject->CreateDeviceEx(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hwnd, D3DCREATE_HARDWARE_VERTEXPROCESSING, &d3dparams, 0, &d3dDevice);
 
         D3DXCreateFont(d3dDevice, 50, 0, FW_BOLD, 1, false, DEFAULT_CHARSET, OUT_DEVICE_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH,L"Comic Sans", &d3dFont);
-
+        InitializeTextureNsprite(L"C:\\Users\\Supreme1337\\Desktop\\icons\\bgr.png");
     }
 
     void drawText(char* String, int x, int y, int a, int r, int g, int b)
@@ -90,10 +91,10 @@ public:
         int height = rect.bottom - rect.top;
         if (d3dDevice == nullptr)
             return 1;
-        d3dDevice->Clear(0, 0, D3DCLEAR_TARGET, 111, 1.0f, 0);
+        //d3dDevice->Clear(0, 0, D3DCLEAR_TARGET, 111, 1.0f, 0);
         d3dDevice->BeginScene();
-
-        drawText((char*)"reeeeeeeeee", width / 10, height / 10, 255, 171, 0, 182);
+        RenderImage();
+        //drawText((char*)"reeeeeeeeee", width / 10, height / 10, 255, 171, 0, 182);
 
 
         d3dDevice->EndScene();
@@ -102,7 +103,7 @@ public:
         return 0;
     }
 
-    ~Direct3D9()
+    void Destruct2()
     {
         d3dObject->Release();
         d3dDevice->Release();
@@ -112,5 +113,4 @@ public:
         if (imagetex)
             imagetex->Release();
     }
-};
 

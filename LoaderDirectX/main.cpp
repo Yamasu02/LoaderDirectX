@@ -1,13 +1,16 @@
-#include <Windows.h>
-#include <Windowsx.h>
-#include <iostream>
+
 #include "resource.h"
 #include "Direct2D.h"
-#include "Direct3D.h"
-#include <memory>
+#include "Networking.h"
+
+
+
+
 
 
 const wstring ClassName = L"LoaderClass";
+
+
 
 
 
@@ -30,6 +33,20 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 			bPassword = true;
 		}
 
+		else if (CursorBelongsToRect(hWnd, NewUser))
+		{
+			pPushedSignIn = false;
+			pPushedNewUser = true;
+			Sleep(2); //sync with AnimationManager thread for lower cpu usage
+		}
+
+		else if (CursorBelongsToRect(hWnd, SignIn))
+		{
+			pPushedNewUser = false;
+			pPushedSignIn = true;
+			Sleep(2);  //sync with AnimationManager thread for lower cpu usage
+		}
+
 		else
 		{
 			bEmail = false;
@@ -38,12 +55,12 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 
 	case WM_CHAR:
 
-		if (bEmail && !bPassword && isgraph(wParam) && EmailStr.size() <= 48)
+		if (bEmail && !bPassword && isgraph(wParam) && EmailStr.size() <= 40)
 		{
 			EmailStr.push_back(wParam);
 			break;
 		}
-		else if (bPassword && !bEmail && isgraph(wParam) && PasswordStr.size() <= 48)
+		else if (bPassword && !bEmail && isgraph(wParam) && PasswordStr.size() <= 40)
 		{
 			PasswordStr.push_back(wParam);
 			break;
@@ -99,6 +116,7 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 		break;
 
 	default:
+
 		return DefWindowProc(hWnd, Msg, wParam, lParam);
 	}
 }
@@ -107,6 +125,7 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 int CALLBACK  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdSHow)
 {
 	WNDCLASSEX wc = { 0 };
+	WNDCLASSEX wc2 = { 0 };
 	wc.cbSize = sizeof(wc);
 	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 	wc.lpfnWndProc = (WNDPROC)WinProc;
@@ -119,15 +138,22 @@ int CALLBACK  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 	wc.lpszMenuName = NULL;
 	wc.lpszClassName = (LPCWSTR)&ClassName;
 	wc.hIconSm = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON1));
+
 	RegisterClassEx(&wc);
 
+
 	HWND hWnd = CreateWindowEx(0, (LPCWSTR)&ClassName, L"Yamasu Loader v1.0", WS_OVERLAPPEDWINDOW, 600, 300, 1100, 700, nullptr, nullptr, hInstance, nullptr); 
+
 	construct(hWnd);
 	ShowWindow(hWnd, SW_SHOW);
 	UpdateWindow(hWnd); 
 	SetForegroundWindow(hWnd); 
 	SetFocus(hWnd); 
-	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)Timer, 0, 0, 0);
+
+	
+	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)*Timer, 0, 0, 0);
+	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)*AnimationManager, 0, 0, 0);
+	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)*Networking, 0, 0, 0);
 
 
 	MSG msg;
