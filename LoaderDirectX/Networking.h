@@ -63,8 +63,7 @@
                     int bytesReceived = recv(sock, buf, 4096, 0);
                     if (bytesReceived > 0)
                     {
-                        // Echo response to console
-                        //cout << "SERVER> " << string(buf, 0, bytesReceived) << endl;
+                        
                     }
                 }
             }
