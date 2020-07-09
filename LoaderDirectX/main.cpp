@@ -1,7 +1,7 @@
 #include "resource.h"
 #include "Direct2D.h"
 #include "Networking.h"
-
+#include <shellapi.h>
 
 const wstring ClassName = L"LoaderClass";
 
@@ -32,6 +32,7 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 			pPushedSignIn = false;
 			pPushedNewUser = true;
 			Sleep(2); //sync with AnimationManager thread for lower cpu usage
+			HINSTANCE result = ShellExecuteA(0, NULL, "http://www.yamasu.co/register", NULL, NULL, SW_SHOWNORMAL);
 		}
 
 		else if (CursorBelongsToRect(hWnd, SignIn))
@@ -50,7 +51,8 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 			pPushedNewUser = false;
 			pPushedSignIn = false;
 			pPushedForgotPassword = true;
-			Sleep(2);  //sync with AnimationManager thread for lower cpu usage
+			Sleep(100);  //sync with AnimationManager thread for lower cpu usage
+			HINSTANCE result = ShellExecuteA(0, NULL, "http://www.yamasu.co/login", NULL, NULL, SW_SHOWNORMAL);
 		}
 
 		else

