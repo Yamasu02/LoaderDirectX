@@ -40,8 +40,8 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 			pPushedSignIn = true;
 			bEmail = false;
 			bPassword = false;
-			EmailStr.clear();
-			PasswordStr.clear();
+			//EmailStr.clear();
+			//PasswordStr.clear();
 			Sleep(2);  //sync with AnimationManager thread for lower cpu usage
 		}
 
@@ -56,7 +56,7 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 		else
 		{
 			bEmail = false;
-			bPassword = false;
+			bPassword = false;			
 		}
 
 	case WM_CHAR:
@@ -79,7 +79,6 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 		{	
 
 			case VK_RETURN:
-
 
 				break;
 
