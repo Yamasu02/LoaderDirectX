@@ -38,6 +38,18 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 		{
 			pPushedNewUser = false;
 			pPushedSignIn = true;
+			bEmail = false;
+			bPassword = false;
+			EmailStr.clear();
+			PasswordStr.clear();
+			Sleep(2);  //sync with AnimationManager thread for lower cpu usage
+		}
+
+		else if (CursorBelongsToRect(hWnd, Fpassword))
+		{
+			pPushedNewUser = false;
+			pPushedSignIn = false;
+			pPushedForgotPassword = true;
 			Sleep(2);  //sync with AnimationManager thread for lower cpu usage
 		}
 

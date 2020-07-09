@@ -48,45 +48,50 @@ using namespace D2D1;
 
 
 
-    ID2D1SolidColorBrush* pWhiteBrush = NULL;
-    ID2D1SolidColorBrush* pBlackBrush = NULL;
-    ID2D1SolidColorBrush* pSemiOpaqueBrush = NULL;
-    ID2D1LinearGradientBrush* pLinearGradientBrush = NULL;
+ID2D1SolidColorBrush* pWhiteBrush = NULL;
+ID2D1SolidColorBrush* pBlackBrush = NULL;
+ID2D1SolidColorBrush* pSemiOpaqueBrush = NULL;
+ID2D1LinearGradientBrush* pLinearGradientBrush = NULL;
+ID2D1LinearGradientBrush* pLinearGradientBrush2 = NULL;
 
-    ID2D1GradientStopCollection* pGradientStops = NULL;
-    D2D1_GRADIENT_STOP gradientStops[2];
-
-
-    HRESULT hr = NULL;
-    RECT rc = { 0 };
-    ID2D1Factory* pDirect2dFactory = NULL;
-    ID2D1HwndRenderTarget* pRenderTarget = NULL;
-    IWICImagingFactory* pIWICFactory = NULL;
+ID2D1GradientStopCollection* pGradientStops = NULL;
+D2D1_GRADIENT_STOP gradientStops[2];
+ID2D1GradientStopCollection* pGradientStops2 = NULL;
+D2D1_GRADIENT_STOP gradientStops2[2];
 
 
-    ID2D1Bitmap* pBitmapEmail = NULL;
-    ID2D1Bitmap* pBitmapKey = NULL;
-    ID2D1Bitmap* pBitmapLock = NULL;
-    ID2D1Bitmap* pBitmapBgr = NULL;
+HRESULT hr = NULL;
+RECT rc = { 0 };
+ID2D1Factory* pDirect2dFactory = NULL;
+ID2D1HwndRenderTarget* pRenderTarget = NULL;
+IWICImagingFactory* pIWICFactory = NULL;
 
 
-    FLOAT f1;
-    FLOAT f2;
+ID2D1Bitmap* pBitmapEmail = NULL;
+ID2D1Bitmap* pBitmapKey = NULL;
+ID2D1Bitmap* pBitmapLock = NULL;
+ID2D1Bitmap* pBitmapBgr = NULL;
 
 
-    IDWriteFactory* pDWriteFactory;
-    IDWriteTextFormat* pTextFormat;
-    IDWriteTextFormat* pTextFormat2;
+FLOAT f1;
+FLOAT f2;
 
 
-    POINT point;
+IDWriteFactory* pDWriteFactory;
+IDWriteTextFormat* pTextFormat;
+IDWriteTextFormat* pTextFormat2;
+IDWriteTextFormat* pTextFormat3;
+IDWriteTextFormat* pTextFormat4;
 
-    wstring EmailStr;
-    wstring PasswordStr;
+
+POINT point;
+
+ wstring EmailStr;
+ wstring PasswordStr;
 
 
-    D2D1_RECT_F KeyBmp;
-    D2D1_RECT_F EmailBmp;
+D2D1_RECT_F KeyBmp;
+D2D1_RECT_F EmailBmp;
     D2D1_RECT_F LockBmp;
     D2D1_RECT_F CheatBmp;
     D2D1_RECT_F GameBmp;
@@ -97,11 +102,16 @@ using namespace D2D1;
     D2D1_RECT_F Email; 
     D2D1_RECT_F Or;
     D2D1_RECT_F Fpassword;
+    D2D1_RECT_F Title;
 
     D2D1_ROUNDED_RECT RoundEmail ;
     D2D1_ROUNDED_RECT RoundPassword ;
     D2D1_ROUNDED_RECT RoundNewUser;
     D2D1_ROUNDED_RECT RoundSignIn ;
+   
+
+    D2D1_POINT_2F pPointLineFp1;
+    D2D1_POINT_2F pPointLineFp2;
 
     HCURSOR hCursorHand;
     HCURSOR hCursorArrow;
@@ -117,8 +127,12 @@ using namespace D2D1;
 
     bool pPushedNewUser = false;
     bool pPushedSignIn = false;
+    bool pPushedForgotPassword = false;
+
+
     bool bPushTimer = false;
     bool bPushTimer2 = false;
+    bool bPushTimer3 = false;
 
 
 
@@ -232,6 +246,8 @@ using namespace D2D1;
     }
     
 
+ 
+
     HRESULT CreateBrushes()
     {
         hr = pRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White, 1.0f), &pWhiteBrush);
@@ -242,16 +258,27 @@ using namespace D2D1;
         gradientStops[0].position = 0.1f;
         gradientStops[1].color = ColorF(ColorF::DarkSlateGray, 1);
         gradientStops[1].position = 0.9;
+
+        gradientStops2[0].color = ColorF(ColorF::White, 1);
+        gradientStops2[0].position = 0.1f;
+        gradientStops2[1].color = ColorF(ColorF::Black, 1);
+        gradientStops2[1].position = 0.25;
         hr = pRenderTarget->CreateGradientStopCollection(gradientStops, 2, D2D1_GAMMA_2_2, D2D1_EXTEND_MODE_CLAMP, &pGradientStops);
         hr = pRenderTarget->CreateLinearGradientBrush(LinearGradientBrushProperties(Point2F(0, 0), D2D1::Point2F(550, 1100)), pGradientStops, &pLinearGradientBrush);
+
+        hr = pRenderTarget->CreateGradientStopCollection(gradientStops2, 2, D2D1_GAMMA_2_2, D2D1_EXTEND_MODE_CLAMP, &pGradientStops2);
+        hr = pRenderTarget->CreateLinearGradientBrush(LinearGradientBrushProperties(Point2F(0, 0), D2D1::Point2F(550, 1100)), pGradientStops2, &pLinearGradientBrush2);
+
         return hr;
     }
 
 
     HRESULT CreateFormats()
     {
-        hr = pDWriteFactory->CreateTextFormat(L"Comic Sans", NULL, DWRITE_FONT_WEIGHT_REGULAR, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 16.0f, L"en-us", &pTextFormat);
+        hr = pDWriteFactory->CreateTextFormat(L"Italic", NULL, DWRITE_FONT_WEIGHT_REGULAR, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 16.0f, L"en-us", &pTextFormat);
         hr = pDWriteFactory->CreateTextFormat(L"Comic Sans", NULL, DWRITE_FONT_WEIGHT_REGULAR, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 14.5f, L"en-us", &pTextFormat2);
+        hr = pDWriteFactory->CreateTextFormat(L"Comic Sans", NULL, DWRITE_FONT_WEIGHT_THIN, DWRITE_FONT_STYLE_ITALIC, DWRITE_FONT_STRETCH_ULTRA_EXPANDED, 50.f, L"en-us", &pTextFormat3);
+        hr = pDWriteFactory->CreateTextFormat(L"Comic Sans", NULL, DWRITE_FONT_WEIGHT_REGULAR, DWRITE_FONT_STYLE_OBLIQUE, DWRITE_FONT_STRETCH_NORMAL, 50.5f, L"en-us", &pTextFormat4);
         return hr;
     }
 
@@ -323,6 +350,12 @@ using namespace D2D1;
                 bPushTimer2= false;
                 SubmitSignIn();
             }
+            else if (pPushedForgotPassword)
+            {
+                bPushTimer3 = true;
+                Sleep(50);
+                bPushTimer3 = false;
+            }
             Sleep(2);
         }
     }
@@ -342,13 +375,16 @@ using namespace D2D1;
         Email = { f1 / 2 - 200, f2 * 10 / 19 ,f1 / 2 + 200,  f2 * 11 / 19 + 20 };
         Or = { f1 / 2 - 180,f2 * 8 / 19 ,  f1 / 2 + 180,  f2 * 10 / 19 };
         Fpassword = { f1 / 2 - 90,f2 * 17 / 19   ,f1 / 2 + 90,f2 * 17 / 19 + 20 };
-
+        Title = { f1 / 2 - 200 , f2 * 2 / 19, f1 / 2 + 200, f2 * 3 / 19 };
 
         KeyBmp = { f1 / 2 - 290, f2 * 11 / 19 + 40, f1 / 2 - 230 ,f2 * 12 / 19 + 60 };
         EmailBmp = { f1 / 2 - 290, f2 * 10 / 19, f1 / 2 - 230 , f2 * 11 / 19 + 20 };
         LockBmp = { f1 / 2 - 135, f2 * 17 / 19 - 10, f1 / 2 - 115, f2 * 18 / 19 - 4 };
         CheatBmp = { f1 / 7 - 135, f2 * 17 / 19 - 10, f1 / 2 - 115, f2 * 18 / 19 - 4 };
         GameBmp = { f1 / 3 , f2 * 1 / 7 - 10, f1 * 2 / 3, f2 * 2 / 7 };
+
+        pPointLineFp1 = { f1 / 2 - 90,f2 * 17 / 19 + 25 };
+        pPointLineFp2 = { f1 / 2 + 90, f2 * 17 / 19 + 25 };
 
         RoundEmail = { Email,5,5 };
         RoundPassword = { Password,5,5 };
@@ -483,9 +519,37 @@ using namespace D2D1;
         pTextFormatE = pTextFormat2;
     }
 
+    void MakeLineAnimation(D2D1_POINT_2F& p1, D2D1_POINT_2F& p2)
+    {
+        p1.x += 35;
+        p2.x -= 35;
+        Sleep(80);
+    }
+
+    float f11 = 0.1;
+    float f22 = 0.2;
+
 
     void draw(HWND hwnd)
     {
+      
+
+        if (f11  <= 0.29)
+          
+        {
+            f11 += 0.005;
+            f22 += 0.005;
+            gradientStops2[0].color = ColorF(ColorF::White, 1);
+            gradientStops2[0].position = f11;
+            gradientStops2[1].color = ColorF(ColorF::Black, 1);
+            gradientStops2[1].position = f22;
+
+            hr = pRenderTarget->CreateGradientStopCollection(gradientStops2, 2, D2D1_GAMMA_2_2, D2D1_EXTEND_MODE_CLAMP, &pGradientStops2);
+            hr = pRenderTarget->CreateLinearGradientBrush(LinearGradientBrushProperties(Point2F(0, 0), D2D1::Point2F(550, 1100)), pGradientStops2, &pLinearGradientBrush2);
+        }
+            
+
+           
         Update(hwnd);
         CursorHandler(hwnd);
 
@@ -518,6 +582,11 @@ using namespace D2D1;
             MakeButtonAnimation(RoundSignIn, pTextFormatSignIn);
         }
 
+        if (bPushTimer3)
+        {
+            MakeLineAnimation(pPointLineFp1, pPointLineFp2);
+        }
+
         pRenderTarget->DrawRoundedRectangle(RoundEmail, pWhiteBrush, 1.1, 0);
         pRenderTarget->FillRoundedRectangle(RoundNewUser, pBlackBrush);
 
@@ -532,20 +601,27 @@ using namespace D2D1;
     
         hr = pTextFormat2->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
         hr = pTextFormat2->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+        hr = pTextFormat3->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+
+        
          pRenderTarget->DrawTextW(L"Sign up as a new user", lstrlenW(L"Sign up as a new user"), pTextFormatNewUser, NewUser, pWhiteBrush);
         
        
         pRenderTarget->DrawTextW(L"Sign in", lstrlenW(L"Sign in"), pTextFormatSignIn, SignIn, pWhiteBrush);
         pRenderTarget->DrawTextW(L"or", lstrlenW(L"or"), pTextFormat, Or, pWhiteBrush);
         pRenderTarget->DrawTextW(L"Forgot your password?", lstrlenW(L"Forgot your password?"), pTextFormat, Fpassword, pWhiteBrush); 
-        pRenderTarget->DrawLine({ f1 / 2 - 90,f2 * 17 / 19 + 25 }, { f1 / 2 + 90, f2 * 17 / 19 + 25 }, pWhiteBrush, 1.4, NULL);
+
+        pRenderTarget->DrawLine( pPointLineFp1, pPointLineFp2, pWhiteBrush, 1.4, NULL);
 
         pPushedNewUser = false;
         pPushedSignIn = false;
+        pPushedForgotPassword = false;
 
         hr = pTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
 
+        pRenderTarget->DrawTextW(L"Yamasu Cheats", lstrlenW(L"Yamasu Cheats"), pTextFormat3, Title, pLinearGradientBrush2);
 
+        
 
         ///////////////////////////
 
@@ -570,7 +646,13 @@ using namespace D2D1;
         {
              DrawTextInBox(Password, PasswordStr);
         }     
-        
+
+
+        if ( f11 < 0.29)
+        {
+            pLinearGradientBrush2->Release();
+        }
+        Sleep(30);
 
          pRenderTarget->EndDraw();
      }

