@@ -1,8 +1,8 @@
 #include <locale>
 
 
-    string ipAddress = "127.0.0.1";			// IP Address of the server
-    int port = 54000;						// Listening port # on the server
+    string ipAddress = "127.0.0.1";			
+    int port = 54000;					
     char buf[4096];
 
     string EmailSend;
