@@ -149,21 +149,35 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Animations.h" />
+    <ClInclude Include="CreateResources.h" />
     <ClInclude Include="Direct2D.h" />
     <ClInclude Include="Direct3D.h" />
+    <ClInclude Include="Drawing.h" />
+    <ClInclude Include="HandleInput.h" />
     <ClInclude Include="Logger.h" />
+    <ClInclude Include="Misc.h" />
     <ClInclude Include="Networking.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="ResourcesD2D.h" />
+    <ClInclude Include="SharedMemory.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LoaderDirectX.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\..\..\Desktop\bgr.png" />
-    <Image Include="..\..\..\..\Desktop\email.png" />
-    <Image Include="..\..\..\..\Desktop\key.png" />
-    <Image Include="..\..\..\..\Desktop\lock.png" />
-    <Image Include="..\..\..\..\Desktop\sunico.ico" />
+    <Image Include="..\..\..\..\..\Desktop\hs.png" />
+    <Image Include="..\..\..\..\..\Desktop\icons\account.png" />
+    <Image Include="..\..\..\..\..\Desktop\icons\bgr.png" />
+    <Image Include="..\..\..\..\..\Desktop\icons\email.png" />
+    <Image Include="..\..\..\..\..\Desktop\icons\key.png" />
+    <Image Include="..\..\..\..\..\Desktop\icons\lock.png" />
+    <Image Include="..\..\..\..\..\Desktop\icons\scope.png" />
+    <Image Include="..\..\..\..\..\Desktop\icons\SkinChanger.png" />
+    <Image Include="..\..\..\..\..\Desktop\icons\sunico.ico" />
+    <Image Include="..\..\..\..\..\Desktop\icons\visual.png" />
+    <Image Include="..\..\..\..\..\Desktop\icons\wrench.png" />
+    <Image Include="..\..\..\..\..\Desktop\icons\yy.png" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />

@@ -13,22 +13,58 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Direct2D">
+      <UniqueIdentifier>{5c331076-58bc-430e-a80a-c3760e88e6f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Direct3D">
+      <UniqueIdentifier>{16df7338-e5b4-4294-8db3-cb724401b5e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ErrorChecking">
+      <UniqueIdentifier>{567678f3-906a-4287-926c-6b37b262d45d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Memory">
+      <UniqueIdentifier>{233a735e-95dd-474d-b24b-c1baf2f053be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Keyboard&amp;Mouse">
+      <UniqueIdentifier>{ed05229f-f047-4828-8151-59b3d0d058f6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Direct2D.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Direct3D.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Logger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Networking.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct2D.h">
+      <Filter>Header Files\Direct2D</Filter>
+    </ClInclude>
+    <ClInclude Include="Direct3D.h">
+      <Filter>Header Files\Direct3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Logger.h">
+      <Filter>Header Files\ErrorChecking</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourcesD2D.h">
+      <Filter>Header Files\Direct2D</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedMemory.h">
+      <Filter>Header Files\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Misc.h">
+      <Filter>Header Files\Direct2D</Filter>
+    </ClInclude>
+    <ClInclude Include="Drawing.h">
+      <Filter>Header Files\Direct2D</Filter>
+    </ClInclude>
+    <ClInclude Include="HandleInput.h">
+      <Filter>Header Files\Keyboard&amp;Mouse</Filter>
+    </ClInclude>
+    <ClInclude Include="Animations.h">
+      <Filter>Header Files\Direct2D</Filter>
+    </ClInclude>
+    <ClInclude Include="CreateResources.h">
+      <Filter>Header Files\Direct2D</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -37,19 +73,40 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\..\..\Desktop\sunico.ico">
+    <Image Include="..\..\..\..\..\Desktop\icons\sunico.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="..\..\..\..\Desktop\email.png">
+    <Image Include="..\..\..\..\..\Desktop\icons\bgr.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="..\..\..\..\Desktop\key.png">
+    <Image Include="..\..\..\..\..\Desktop\icons\email.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="..\..\..\..\Desktop\bgr.png">
+    <Image Include="..\..\..\..\..\Desktop\icons\key.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="..\..\..\..\Desktop\lock.png">
+    <Image Include="..\..\..\..\..\Desktop\icons\lock.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\..\..\..\Desktop\hs.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\..\..\..\Desktop\icons\visual.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\..\..\..\Desktop\icons\scope.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\..\..\..\Desktop\icons\yy.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\..\..\..\Desktop\icons\account.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\..\..\..\Desktop\icons\wrench.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\..\..\..\Desktop\icons\SkinChanger.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

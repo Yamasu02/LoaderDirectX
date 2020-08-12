@@ -1,9 +1,11 @@
 #include "resource.h"
 #include "Direct2D.h"
 #include "Networking.h"
-#include <shellapi.h>
+#include "Direct3D.h"
 
 const wstring ClassName = L"LoaderClass";
+
+RECT CurrentSize;
 
 
 
@@ -15,106 +17,47 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 
 	case  WM_LBUTTONDOWN:
 
-		if (CursorBelongsToRect(hWnd, Email))
-		{
-			bPassword = false;
-			bEmail = true;
-		}
-
-		else if (CursorBelongsToRect(hWnd, Password))
-		{
-			bEmail = false;
-			bPassword = true;
-		}
-
-		else if (CursorBelongsToRect(hWnd, NewUser))
-		{
-			pPushedSignIn = false;
-			pPushedNewUser = true;
-			Sleep(2); //sync with AnimationManager thread for lower cpu usage
-			HINSTANCE result = ShellExecuteA(0, NULL, "http://www.yamasu.co/register", NULL, NULL, SW_SHOWNORMAL);
-		}
-
-		else if (CursorBelongsToRect(hWnd, SignIn))
-		{
-			pPushedNewUser = false;
-			pPushedSignIn = true;
-			bEmail = false;
-			bPassword = false;
-			//EmailStr.clear();
-			//PasswordStr.clear();
-			Sleep(2);  //sync with AnimationManager thread for lower cpu usage
-		}
-
-		else if (CursorBelongsToRect(hWnd, Fpassword))
-		{
-			pPushedNewUser = false;
-			pPushedSignIn = false;
-			pPushedForgotPassword = true;
-			Sleep(100);  //sync with AnimationManager thread for lower cpu usage
-			HINSTANCE result = ShellExecuteA(0, NULL, "http://www.yamasu.co/login", NULL, NULL, SW_SHOWNORMAL);
-		}
-
-		else
-		{
-			bEmail = false;
-			bPassword = false;			
-		}
+		CheckLogInClicks(hWnd);
+		break;
 
 	case WM_CHAR:
 
-		if (bEmail && !bPassword && isgraph(wParam) && EmailStr.size() <= 40)
-		{
-			EmailStr.push_back(wParam);
-			break;
-		}
-		else if (bPassword && !bEmail && isgraph(wParam) && PasswordStr.size() <= 40)
-		{
-			PasswordStr.push_back(wParam);
-			break;
-		}
+		PushChar(wParam);
+		break;
 			
-
 	case WM_KEYDOWN:
 
 		switch (wParam)
 		{	
-
 			case VK_RETURN:
 
+				LastButtonPushed = Buttons.SignIn;
 				break;
 
 			case VK_BACK:
 
-				if (bEmail && !EmailStr.empty())
+				if (LastButtonPushed == Buttons.Email && !Strings.EmailStr.empty())
 				{
-					EmailStr.pop_back();
-					if (EmailStr.size() > 0)
-					{
-						EmailStr.resize(EmailStr.size() - 1);
-					}
+					RemoveChar(Strings.EmailStr);
 					break;
 				}
-				else if (bPassword && !PasswordStr.empty())
+				else if (LastButtonPushed == Buttons.Password && !Strings.PasswordStr.empty())
 				{
-					PasswordStr.pop_back();
-					if (PasswordStr.size() > 0)
-					{
-						PasswordStr.resize(PasswordStr.size() - 1);
-					}
+					RemoveChar(Strings.PasswordStr);
 					break;
 				}
 				break;
+					
 		}
 
 	case WM_PAINT:
 
-		draw(hWnd);
+		DrawLogIn(hWnd); 
 		break;
 
 	case WM_MOUSEMOVE:
 
-		point = { GET_X_LPARAM(lParam) ,GET_Y_LPARAM(lParam) };
+		Points.point = { GET_X_LPARAM(lParam) ,GET_Y_LPARAM(lParam) };
 		break;
 
 	case WM_DESTROY:
@@ -123,7 +66,43 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 		break;
 
 	default:
+		return DefWindowProc(hWnd, Msg, wParam, lParam);
+	}
+}
 
+LRESULT CALLBACK WinProcMenu(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
+{
+	switch (Msg)
+	{
+	case WM_MOUSEMOVE:
+
+		Points.point = { GET_X_LPARAM(lParam) ,GET_Y_LPARAM(lParam) };
+		break;
+
+		
+	case WM_LBUTTONDOWN :
+
+		SectionSelector(hWnd,LastMenuButtonPushed);
+		CheckCheckBoxClick(hWnd);
+		
+		break;
+
+	case WM_LBUTTONUP:
+
+
+		break;
+
+	case WM_PAINT:
+
+		DrawMenu(hWnd);
+		break;
+
+	case WM_DESTROY:
+
+		PostQuitMessage(0);
+		break;
+
+	default:
 		return DefWindowProc(hWnd, Msg, wParam, lParam);
 	}
 }
@@ -131,6 +110,9 @@ LRESULT CALLBACK WinProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 
 int CALLBACK  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdSHow)
 {
+	auto xd = 0x2424c9d7e3a;
+	auto ree = xd ^ 0x5a;
+	cout << ree;
 	WNDCLASSEX wc = { 0 };
 	WNDCLASSEX wc2 = { 0 };
 	wc.cbSize = sizeof(wc);
@@ -149,9 +131,9 @@ int CALLBACK  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 	RegisterClassEx(&wc);
 
 
-	HWND hWnd = CreateWindowEx(0, (LPCWSTR)&ClassName, L"Yamasu Loader v1.0", WS_OVERLAPPEDWINDOW, 600, 300, 1100, 700, nullptr, nullptr, hInstance, nullptr); 
+	HWND hWnd = CreateWindowEx(0, (LPCWSTR)&ClassName, L"Yamasu Loader v1.0", WS_OVERLAPPEDWINDOW, 600, 300, 1100, 700, nullptr, nullptr, hInstance, nullptr);
 
-	construct(hWnd);
+	InitializeResources(hWnd);
 	ShowWindow(hWnd, SW_SHOW);
 	UpdateWindow(hWnd); 
 	SetForegroundWindow(hWnd); 
@@ -162,14 +144,22 @@ int CALLBACK  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)*AnimationManager, 0, 0, 0);
 	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)*Networking, 0, 0, 0);
 
+	MapSharedMemory();
 
 	MSG msg;
 	while (GetMessage(&msg, 0, 0, 0))
 	{
+		if (GetAsyncKeyState(VK_TAB))
+		{
+			SetWindowLongPtrA(hWnd, GWLP_WNDPROC, (LONG_PTR)WinProcMenu);
+		}
+		if (GetAsyncKeyState(VK_BACK))
+		{
+			SetWindowLongPtrA(hWnd, GWLP_WNDPROC, (LONG_PTR)WinProc);
+		}
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
-
 
 	Destruct();
 	UnregisterClass(ClassName.c_str(),hInstance);

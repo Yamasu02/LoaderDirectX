@@ -1,11 +1,17 @@
 #pragma once
 
-
 #define WIN32_LEAN_AND_MEAN 
+
+#include "wtypes.h"
+#include "propidl.h"
+#include "ocidl.h"
+#include "dxgiformat.h"
+#include "dxgitype.h"
 #include <Windows.h>
 #include <Windowsx.h>
-#include <WinSock2.h>
+#include <shellapi.h>
 #include <iostream>
+
 
 typedef struct DXGI_JPEG_AC_HUFFMAN_TABLE
 {
@@ -24,652 +30,353 @@ typedef struct DXGI_JPEG_QUANTIZATION_TABLE
     BYTE Elements[64];
 } DXGI_JPEG_QUANTIZATION_TABLE;
 
+
 #include <d2d1.h>
 #include <d2d1helper.h>
 #include <dwrite.h>
 #include <wincodec.h>
-#include <string>
-#include "resource.h"
 #include <ws2tcpip.h>
 
-#pragma comment(lib, "Ws2_32.lib")
+#pragma comment(lib,"Ws2_32.lib")
 #pragma comment(lib,"d2d1.lib")
 #pragma comment(lib,"dwrite.lib")
 #pragma comment(lib,"windowscodecs.lib")
 
 
-#include <locale > 
-#include <codecvt>
-
-
-
 using namespace std;
 using namespace D2D1;
 
-
-
-ID2D1SolidColorBrush* pWhiteBrush = NULL;
-ID2D1SolidColorBrush* pBlackBrush = NULL;
-ID2D1SolidColorBrush* pSemiOpaqueBrush = NULL;
-ID2D1LinearGradientBrush* pLinearGradientBrush = NULL;
-ID2D1LinearGradientBrush* pLinearGradientBrush2 = NULL;
-
-ID2D1GradientStopCollection* pGradientStops = NULL;
-D2D1_GRADIENT_STOP gradientStops[2];
-ID2D1GradientStopCollection* pGradientStops2 = NULL;
-D2D1_GRADIENT_STOP gradientStops2[2];
-
-
-HRESULT hr = NULL;
-RECT rc = { 0 };
-ID2D1Factory* pDirect2dFactory = NULL;
-ID2D1HwndRenderTarget* pRenderTarget = NULL;
-IWICImagingFactory* pIWICFactory = NULL;
-
-
-ID2D1Bitmap* pBitmapEmail = NULL;
-ID2D1Bitmap* pBitmapKey = NULL;
-ID2D1Bitmap* pBitmapLock = NULL;
-ID2D1Bitmap* pBitmapBgr = NULL;
-
-
-FLOAT f1;
-FLOAT f2;
-
-
-IDWriteFactory* pDWriteFactory;
-IDWriteTextFormat* pTextFormat;
-IDWriteTextFormat* pTextFormat2;
-IDWriteTextFormat* pTextFormat3;
-IDWriteTextFormat* pTextFormat4;
-
-
-POINT point;
-
-wstring EmailStr;
-wstring PasswordStr;
-
-
-D2D1_RECT_F KeyBmp;
-D2D1_RECT_F EmailBmp;
-D2D1_RECT_F LockBmp;
-D2D1_RECT_F CheatBmp;
-D2D1_RECT_F GameBmp;
-
-D2D1_RECT_F NewUser ;
-D2D1_RECT_F SignIn;
-D2D1_RECT_F Password;
-D2D1_RECT_F Email; 
-D2D1_RECT_F Or;
-D2D1_RECT_F Fpassword;
-D2D1_RECT_F Title;
-
-D2D1_ROUNDED_RECT RoundEmail ;
-D2D1_ROUNDED_RECT RoundPassword ;
-D2D1_ROUNDED_RECT RoundNewUser;
-D2D1_ROUNDED_RECT RoundSignIn ;
-   
-
-D2D1_POINT_2F pPointLineFp1;
-D2D1_POINT_2F pPointLineFp2;
-
-HCURSOR hCursorHand;
-HCURSOR hCursorArrow;
-
-
-IDWriteTextFormat* pTextFormatNewUser = pTextFormat;
-IDWriteTextFormat* pTextFormatSignIn = pTextFormat; 
-
-     
-bool bTimebool = false;
-bool bEmail = false;
-bool bPassword = false;
-
-bool pPushedNewUser = false;
-bool pPushedSignIn = false;
-bool pPushedForgotPassword = false;
-
-
-bool bPushTimer = false;
-bool bPushTimer2 = false;
-bool bPushTimer3 = false;
+#include "resource.h"
+#include "ResourcesD2D.h"
+#include "SharedMemory.h"
+#include "Misc.h"
+#include "Drawing.h"
+#include "HandleInput.h"
+#include "Animations.h"
+#include "CreateResources.h"
 
 
 
-    HRESULT LoadBitmapFromResource(int id, LPCWSTR type,ID2D1Bitmap** ppBitmap)
-    {
-        IWICBitmapDecoder* pDecoder = NULL;
-        IWICBitmapFrameDecode* pSource = NULL;
-        IWICStream* pStream = NULL;
-        IWICFormatConverter* pConverter = NULL;
-        IWICBitmapScaler* pScaler = NULL;
+void Update(HWND hwnd)
+{
+    GetClientRect(hwnd, &Rsrces.rc);
+    D2D1_SIZE_U size = SizeU(Rsrces.rc.right - Rsrces.rc.left, Rsrces.rc.bottom - Rsrces.rc.top);
+    Rsrces.pRenderTarget->Resize(size);
 
-        HRSRC imageResHandle = NULL;
-        HGLOBAL imageResDataHandle = NULL;
-        void* pImageFile = NULL;
-        DWORD imageFileSize = 0;
+    width = Rsrces.rc.right - Rsrces.rc.left;
+    heigth = Rsrces.rc.bottom - Rsrces.rc.top;
 
-       
-        imageResHandle = FindResource(NULL, MAKEINTRESOURCE(id), type);
-        HRESULT hr = imageResHandle ? S_OK : E_FAIL;
-
-        if (SUCCEEDED(hr))
-        {
-            imageResDataHandle = LoadResource(NULL, imageResHandle);
-            hr = imageResDataHandle ? S_OK : E_FAIL;
-        }
-
-        if (SUCCEEDED(hr))
-        {
-            pImageFile = LockResource(imageResDataHandle);
-            hr = pImageFile ? S_OK : E_FAIL;
-        }
-
-        if (SUCCEEDED(hr))
-        {
-            imageFileSize = SizeofResource(NULL, imageResHandle);
-            hr = imageFileSize ? S_OK : E_FAIL;
-        }
-
-        if (SUCCEEDED(hr))
-        {
-            hr = pIWICFactory->CreateStream(&pStream);
-        }
-
-        if (SUCCEEDED(hr))
-        {
-            hr = pStream->InitializeFromMemory( (BYTE*)(pImageFile),imageFileSize);
-        }
-
-        if (SUCCEEDED(hr))
-        {
-            hr = pIWICFactory->CreateDecoderFromStream(pStream,NULL, WICDecodeMetadataCacheOnLoad,&pDecoder);
-        }
-
-        if (SUCCEEDED(hr))
-        {
-            hr = pDecoder->GetFrame(0, &pSource);
-        }
-
-        if (SUCCEEDED(hr))
-        {
-            hr = pIWICFactory->CreateFormatConverter(&pConverter);
-        }
-
-        if (SUCCEEDED(hr))
-        {
-            hr = pConverter->Initialize(pSource,GUID_WICPixelFormat32bppPBGRA,WICBitmapDitherTypeNone, NULL,0.f,WICBitmapPaletteTypeMedianCut);
+    TextRects.NewUser   = { width * 1/3,    heigth * 6/19,        width * 2/3,         heigth * 8/19 };
+    TextRects.SignIn    = { width * 1/3,    heigth * 13/17,       width * 2/3,         heigth * 16/19 };
+    TextRects.Password  = { width * 3/10,   heigth * 12/19,       width * 7/10 ,       heigth * 13/18 };
+    TextRects.Email     = { width * 3/10,   heigth * 21/40,       width * 7/10,        heigth * 11/18 };
+    TextRects.Or        = { width * 3/10,   heigth * 8/19,        width * 7/10,        heigth * 10/19 };
+    TextRects.Title     = { width * 3/10,   heigth * 2/19,        width * 7/10,        heigth * 3/19 };
 
 
-            if (SUCCEEDED(hr))
-            {
-                hr = pRenderTarget->CreateBitmapFromWicBitmap(pConverter,NULL,ppBitmap );
-            }
+    BitmapRects.KeyBmp  = { width * 4/18,    heigth * 12/19,       width * 3/10 ,        heigth * 13 / 18 };
+    BitmapRects.EmailBmp= { width * 2/9,     heigth * 10/20 + 8,   width * 3/11 + 8 ,    heigth * 12 / 19 };
 
-            return hr;
-        }
-    }
-
-
-    HRESULT LoadBitmapFromFile(LPCWSTR path, ID2D1Bitmap** ppBitmap)
-    {
-        IWICBitmapDecoder* pDecoder = NULL;
-        IWICBitmapFrameDecode* pSource = NULL;
-        IWICStream* pStream = NULL;
-        IWICFormatConverter* pConverter = NULL;
-        IWICBitmapScaler* pScaler = NULL;
-
-        HRESULT hr = pIWICFactory->CreateDecoderFromFilename(path, NULL, GENERIC_READ, WICDecodeMetadataCacheOnLoad, &pDecoder);
-
-
-        if (SUCCEEDED(hr))
-        {
-            hr = pDecoder->GetFrame(0, &pSource);
-        }
-
-        if (SUCCEEDED(hr))
-        {
-            hr = pIWICFactory->CreateFormatConverter(&pConverter);
-        }
-
-        if (SUCCEEDED(hr))
-        {
-            hr = pConverter->Initialize(pSource, GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, NULL, 0.f, WICBitmapPaletteTypeMedianCut);
-
-            if (SUCCEEDED(hr))
-            {
-                hr = pRenderTarget->CreateBitmapFromWicBitmap(pConverter, NULL, ppBitmap);
-            }
-
-        }
-        return hr;
-    }
+    CheckBoxRectsESP.r1 = { width / 4,     heigth * 6/30 ,       width *  4/15,      heigth * 7/30 };
+    CheckBoxRectsESP.r2 = { width / 4,     heigth * 8/30,        width * 4 / 15 ,     heigth * 9/30 };
+    CheckBoxRectsESP.r3 = { width / 4,     heigth * 10/30,       width * 4 / 15 ,     heigth * 11/30 };
+    CheckBoxRectsESP.r4 = { width / 4,     heigth * 12/30,       width * 4 / 15 ,     heigth * 13/30};
+    CheckBoxRectsESP.r5 = { width / 4,     heigth * 14/30,       width * 4 / 15,      heigth * 15/30 };
+    CheckBoxRectsESP.r6 = { width / 4,     heigth * 16 / 30,     width * 4 / 15,      heigth * 17 / 30 };
     
+    TextBoxRectsESP.RectESP      = { width / 4,        heigth * 1/11,    width /2,       heigth * 3/12};
+    TextBoxRectsESP.RectSL       = { width * 2/7,      heigth * 2/21,    width /2 ,      heigth * 4/12 };
+    TextBoxRectsESP.Rect2DBox    = { width * 2/7,      heigth * 3/21,    width /2 ,      heigth * 5/12 };
+    TextBoxRectsESP.Rect3DBox    = { width * 2/7,      heigth * 4/21,    width /2 ,      heigth * 6/12 };
+    TextBoxRectsESP.RectGlow     = { width * 2/7,      heigth * 5/21,    width /2 ,      heigth * 7/12 };
+    TextBoxRectsESP.RectSkeleton = { width * 2/7,      heigth * 6/21,    width /2 ,      heigth * 8/12 };
 
-    HRESULT CreateBrushes()
+
+    Points.pPointLineFp1 = { width / 2 - 90,heigth * 17 / 19 + 25 };
+    Points.pPointLineFp2 = { width / 2 + 90, heigth * 17 / 19 + 25 };
+
+    RoundedRects.RoundEmail    = { TextRects.Email,5,5 };
+    RoundedRects.RoundPassword = { TextRects.Password,5,5 };
+    RoundedRects.RoundNewUser  = { TextRects.NewUser,5,5 };
+    RoundedRects.RoundSignIn   = { TextRects.SignIn ,5,5 };
+
+
+    Rect2 = { 600,600,700,610 };
+
+    BitmapRects.BmpBF = {30 ,10, width / 7 + 30,heigth - 10};
+    BitmapRects.BitmapHs = { BitmapRects.BmpBF.left + 20 ,BitmapRects.BmpBF.top ,BitmapRects.BmpBF.right - 20, BitmapRects.BmpBF.bottom / 6 };
+    BitmapRects.BitmapVisual = { BitmapRects.BmpBF.left + 30 , BitmapRects.BmpBF.bottom / 6 + 20 ,BitmapRects.BmpBF.right - 30, BitmapRects.BmpBF.bottom * 2/6 - 20};
+    BitmapRects.BitmapAA = { BitmapRects.BmpBF.left + 30 , BitmapRects.BmpBF.bottom * 2/6  ,BitmapRects.BmpBF.right - 30, BitmapRects.BmpBF.bottom * 3/6 };
+    BitmapRects.BitmapSkinChanger = { BitmapRects.BmpBF.left + 30 , BitmapRects.BmpBF.bottom * 3/6  ,BitmapRects.BmpBF.right - 30, BitmapRects.BmpBF.bottom * 4/6};
+    BitmapRects.BitmapSettings = { BitmapRects.BmpBF.left + 35 , BitmapRects.BmpBF.bottom * 4/6 + 10  ,BitmapRects.BmpBF.right - 35, BitmapRects.BmpBF.bottom * 5/6 - 10 };
+    BitmapRects.BitmapAccount = { BitmapRects.BmpBF.left + 30 , BitmapRects.BmpBF.bottom * 5/6  ,BitmapRects.BmpBF.right - 30, BitmapRects.BmpBF.bottom * 6/6  - 20};
+}
+
+
+
+
+void CursorTimer()
+{
+    if (LastButtonPushed == Buttons.Email && bTimebool && Strings.EmailStr.length() <= 0) 
     {
-        hr = pRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White, 1.0f), &pWhiteBrush);
-        hr = pRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black, 1.0f), &pBlackBrush);
-        hr = pRenderTarget->CreateSolidColorBrush(D2D1::ColorF({ 1,1,1,0.1 }), &pSemiOpaqueBrush);
-
-        gradientStops[0].color = ColorF(ColorF::Black, 1);
-        gradientStops[0].position = 0.1f;
-        gradientStops[1].color = ColorF(ColorF::DarkSlateGray, 1);
-        gradientStops[1].position = 0.9;
-
-        gradientStops2[0].color = ColorF(ColorF::White, 1);
-        gradientStops2[0].position = 0.1f;
-        gradientStops2[1].color = ColorF(ColorF::Black, 1);
-        gradientStops2[1].position = 0.25;
-        hr = pRenderTarget->CreateGradientStopCollection(gradientStops, 2, D2D1_GAMMA_2_2, D2D1_EXTEND_MODE_CLAMP, &pGradientStops);
-        hr = pRenderTarget->CreateLinearGradientBrush(LinearGradientBrushProperties(Point2F(0, 0), D2D1::Point2F(550, 1100)), pGradientStops, &pLinearGradientBrush);
-
-        hr = pRenderTarget->CreateGradientStopCollection(gradientStops2, 2, D2D1_GAMMA_2_2, D2D1_EXTEND_MODE_CLAMP, &pGradientStops2);
-        hr = pRenderTarget->CreateLinearGradientBrush(LinearGradientBrushProperties(Point2F(0, 0), D2D1::Point2F(550, 1100)), pGradientStops2, &pLinearGradientBrush2);
-
-        return hr;
-    }
-
-
-    HRESULT CreateFormats()
-    {
-        hr = pDWriteFactory->CreateTextFormat(L"Italic", NULL, DWRITE_FONT_WEIGHT_REGULAR, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 16.0f, L"en-us", &pTextFormat);
-        hr = pDWriteFactory->CreateTextFormat(L"Comic Sans", NULL, DWRITE_FONT_WEIGHT_REGULAR, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, 14.5f, L"en-us", &pTextFormat2);
-        hr = pDWriteFactory->CreateTextFormat(L"Comic Sans", NULL, DWRITE_FONT_WEIGHT_THIN, DWRITE_FONT_STYLE_ITALIC, DWRITE_FONT_STRETCH_ULTRA_EXPANDED, 50.f, L"en-us", &pTextFormat3);
-        hr = pDWriteFactory->CreateTextFormat(L"Comic Sans", NULL, DWRITE_FONT_WEIGHT_REGULAR, DWRITE_FONT_STYLE_OBLIQUE, DWRITE_FONT_STRETCH_NORMAL, 50.5f, L"en-us", &pTextFormat4);
-        return hr;
-    }
-
-
-    HRESULT InitializeResources(HWND hwnd)
-    {
-        GetClientRect(hwnd, &rc);
-        D2D1_SIZE_U size = SizeU(rc.right - rc.left, rc.bottom - rc.top);
-
-        CoInitialize(NULL);
-        hr = CoCreateInstance(CLSID_WICImagingFactory, NULL, CLSCTX_INPROC_SERVER, IID_IWICImagingFactory, (LPVOID*)&pIWICFactory);
-        hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &(pDirect2dFactory));
-        hr = pDirect2dFactory->CreateHwndRenderTarget(RenderTargetProperties(), HwndRenderTargetProperties(hwnd, size), &(pRenderTarget));
-
-        hr = LoadBitmapFromResource(IDB_PNG1, L"PNG", &pBitmapEmail);
-        hr = LoadBitmapFromResource(IDB_PNG2, L"PNG", &pBitmapKey);
-        hr = LoadBitmapFromResource(IDB_PNG3, L"PNG", &pBitmapBgr);
-        hr = LoadBitmapFromResource(IDB_PNG4, L"PNG", &pBitmapLock);  
-
-        hr = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), reinterpret_cast<IUnknown**>(&pDWriteFactory));
+        DrawCursor(TextRects.Email, Brushes.pWhiteBrush);
         
-        hCursorHand = LoadCursor(0, MAKEINTRESOURCE(IDC_HAND));
-        hCursorArrow = LoadCursor(0, MAKEINTRESOURCE(IDC_ARROW));
-        return hr;
+    }
+    else if (LastButtonPushed == Buttons.Password && bTimebool && Strings.PasswordStr.length() <= 0)
+    {
+        DrawCursor(TextRects.Password, Brushes.pWhiteBrush);
+    }
+}
+
+void DrawText()
+{
+    Rsrces.hr = WriteFormats.pTextFormatNormal->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+    Rsrces.hr = WriteFormats.pTextFormatNormal->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+
+    Rsrces.hr = WriteFormats.pTextFormatSmaller->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+    Rsrces.hr = WriteFormats.pTextFormatSmaller->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+    Rsrces.hr = WriteFormats.pTextFormatHugeItalic->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+
+
+    Rsrces.pRenderTarget->DrawTextW(L"Sign up as a new user", lstrlenW(L"Sign up as a new user"), WriteFormats.pTextFormatNewUser, TextRects.NewUser, Brushes.pWhiteBrush);
+    Rsrces.pRenderTarget->DrawTextW(L"Sign in", lstrlenW(L"Sign in"), WriteFormats.pTextFormatSignIn, TextRects.SignIn, Brushes.pWhiteBrush);
+    Rsrces.pRenderTarget->DrawTextW(L"or", lstrlenW(L"or"), WriteFormats.pTextFormatNormal, TextRects.Or, Brushes.pWhiteBrush);
+
+
+    Rsrces.hr = WriteFormats.pTextFormatNormal->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
+
+    Rsrces.pRenderTarget->DrawTextW(L"Yamasu Cheats", lstrlenW(L"Yamasu Cheats"), WriteFormats.pTextFormatHugeItalic, TextRects.Title, Brushes.pLinearGradientBrush2);
+
+
+    if (!(LastButtonPushed == Buttons.Email)) 
+    {
+        Rsrces.pRenderTarget->DrawTextW(L" - Email", lstrlenW(L" - Email"), WriteFormats.pTextFormatNormal, TextRects.Email, Brushes.pSemiOpaqueBrush);
+    }
+    if (!(LastButtonPushed == Buttons.Password))
+    {
+        Rsrces.pRenderTarget->DrawTextW(L" - Password", lstrlenW(L" - Password"), WriteFormats.pTextFormatNormal, TextRects.Password, Brushes.pSemiOpaqueBrush);
     }
 
 
-    D2D1_RECT_F RectToD2DRect(RECT rect)
+    if (!Strings.EmailStr.empty())
     {
-        return { (FLOAT)rect.left , (FLOAT)rect.top , (FLOAT)rect.right , (FLOAT)rect.bottom };
+        DrawTextInBox(TextRects.Email, WriteFormats.pTextFormatNormal, Strings.EmailStr);
     }
 
-
-    void SubmitSignIn()
+    if (!Strings.PasswordStr.empty())
     {
-
+        DrawTextInBox(TextRects.Password, WriteFormats.pTextFormatNormal, Strings.PasswordStr);
     }
+}
 
-    void SubmitNewUser()
+
+
+void IncreaseGradientPosition(float& GradientPos1, float& GradientPos2)
+{
+    if (GradientPos1 <= 0.29)
     {
+        GradientPos1 += 0.005;
+        GradientPos2 += 0.005;
+        GS.gradientStops2[0].color = ColorF(ColorF::White, 1);
+        GS.gradientStops2[0].position = GradientPos1;
+        GS.gradientStops2[1].color = ColorF(ColorF::Black, 1);
+        GS.gradientStops2[1].position = GradientPos2;
 
+        Rsrces.hr = Rsrces.pRenderTarget->CreateGradientStopCollection(GS.gradientStops2, 2, D2D1_GAMMA_2_2, D2D1_EXTEND_MODE_CLAMP, &GS.pGradientStops2);
+        Rsrces.hr = Rsrces.pRenderTarget->CreateLinearGradientBrush(LinearGradientBrushProperties(Point2F(0, 0), D2D1::Point2F(550, 1100)), GS.pGradientStops2, &Brushes.pLinearGradientBrush2);
     }
-    
-    void Timer()
+}
+
+
+void MakeSlideBar(HWND hwnd,D2D1_ROUNDED_RECT BarRect,ID2D1Brush* BarBrush, ID2D1Brush* CircleBrush, int& GlobalCount)
+{
+    Rsrces.pRenderTarget->FillRoundedRectangle(BarRect, BarBrush);
+    D2D1_ELLIPSE ellipse = { RectToPoint(BarRect.rect,GlobalCount), (BarRect.rect.bottom - BarRect.rect.top) * 3 / 2, (BarRect.rect.bottom - BarRect.rect.top) * 3 / 2};
+    Rsrces.pRenderTarget->FillEllipse(ellipse, CircleBrush);
+
+    if ((GetKeyState(VK_LBUTTON)))
     {
-        while (1)
+        if (ellipse.point.x >= BarRect.rect.left && ellipse.point.x <= BarRect.rect.right)
         {
-            bTimebool = !bTimebool;
-            Sleep(450);
-        }
-    }
-
-    void AnimationManager()
-    {
-        while (1)
-        {
-
-            if (pPushedNewUser)
+            Rsrces.pRenderTarget->FillEllipse(ellipse, CircleBrush);
+            if (CursorBelongsToRect(hwnd, PointToRect(RectToPoint(Rect2, GlobalCount), (int)(Rect2.bottom - Rect2.top) * 3 / 2)))
             {
-                bPushTimer = true;
-                Sleep(50);
-                bPushTimer = false;
-                SubmitNewUser();
-            }
-            else if (pPushedSignIn)
-            {
-                bPushTimer2 = true;
-                Sleep(50);
-                bPushTimer2= false;
-                SubmitSignIn();
-            }
-            else if (pPushedForgotPassword)
-            {
-                bPushTimer3 = true;
-                Sleep(50);
-                bPushTimer3 = false;
-            }
-            Sleep(2);
-        }
-    }
-
-    void Update(HWND hwnd)
-    {
-        GetClientRect(hwnd, &rc);
-        D2D1_SIZE_U size = SizeU(rc.right - rc.left, rc.bottom - rc.top);
-        pRenderTarget->Resize(size);
-
-        f1 = rc.right - rc.left;
-        f2 = rc.bottom - rc.top;
-
-        NewUser = { f1 / 2 - 180 ,f2 * 6 / 19,f1 / 2 + 180,f2 * 8 / 19 };
-        SignIn = { f1 / 2 - 180,f2 * 15 / 19 - 20,f1 / 2 + 180,f2 * 16 / 19 };
-        Password = { f1 / 2 - 200, f2 * 12 / 19, f1 / 2 + 200 ,f2 * 13 / 19 + 20 };
-        Email = { f1 / 2 - 200, f2 * 10 / 19 ,f1 / 2 + 200,  f2 * 11 / 19 + 20 };
-        Or = { f1 / 2 - 180,f2 * 8 / 19 ,  f1 / 2 + 180,  f2 * 10 / 19 };
-        Fpassword = { f1 / 2 - 90,f2 * 17 / 19   ,f1 / 2 + 90,f2 * 17 / 19 + 20 };
-        Title = { f1 / 2 - 200 , f2 * 2 / 19, f1 / 2 + 200, f2 * 3 / 19 };
-
-        KeyBmp = { f1 / 2 - 290, f2 * 11 / 19 + 40, f1 / 2 - 230 ,f2 * 12 / 19 + 60 };
-        EmailBmp = { f1 / 2 - 290, f2 * 10 / 19, f1 / 2 - 230 , f2 * 11 / 19 + 20 };
-        LockBmp = { f1 / 2 - 135, f2 * 17 / 19 - 10, f1 / 2 - 115, f2 * 18 / 19 - 4 };
-        CheatBmp = { f1 / 7 - 135, f2 * 17 / 19 - 10, f1 / 2 - 115, f2 * 18 / 19 - 4 };
-        GameBmp = { f1 / 3 , f2 * 1 / 7 - 10, f1 * 2 / 3, f2 * 2 / 7 };
-
-        pPointLineFp1 = { f1 / 2 - 90,f2 * 17 / 19 + 25 };
-        pPointLineFp2 = { f1 / 2 + 90, f2 * 17 / 19 + 25 };
-
-        RoundEmail = { Email,5,5 };
-        RoundPassword = { Password,5,5 };
-        RoundNewUser = { NewUser,5,5 };
-        RoundSignIn = { SignIn ,5,5 };
-    }
-
-    void DrawCursor(D2D1_POINT_2F p0, D2D1_POINT_2F p1)
-    {
-        pRenderTarget->DrawLine(p0, p1, pWhiteBrush, 1, NULL);
-    }
-
-    bool PointBelongsToRect(HWND hwnd, LPPOINT lp, D2D1_RECT_F rect)
-    {
-        if (ScreenToClient(hwnd, lp))
-        {
-            if (lp->x >= rect.left && lp->x <= rect.right && lp->y >= rect.top && lp->y <= rect.bottom)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
+                GlobalCount = Points.point.x - Rect2.left;
             }
         }
         else
         {
-            return false;
-        }
-    }
-
-    bool CursorBelongsToRect(HWND hwnd, D2D1_RECT_F rect)
-    {
-        LPPOINT lp = new POINT;
-        GetCursorPos(lp);
-        if (ScreenToClient(hwnd, lp))
-        {
-            if (lp->x >= rect.left && lp->x <= rect.right && lp->y >= rect.top && lp->y <= rect.bottom)
+            if (ellipse.point.x < BarRect.rect.left)
             {
-                return true;
-                delete lp;
+                ellipse.point.x = BarRect.rect.left;
+                Rsrces.pRenderTarget->FillEllipse(ellipse, CircleBrush);
+                GlobalCount = 0;
             }
-            else
+            else if (ellipse.point.x > BarRect.rect.right)
             {
-                return false;
+                ellipse.point.x = BarRect.rect.right;
+                Rsrces.pRenderTarget->FillEllipse(ellipse, CircleBrush);
+                GlobalCount = BarRect.rect.right - BarRect.rect.left;
             }
-        }
-        else
-        {
-            return false;
-            delete lp;
-        }
-    }
 
-    void CursorHandler(HWND hwnd)
+        }
+    } 
+}
+
+
+
+void DrawLogIn(HWND hwnd)
+{
+    IncreaseGradientPosition(GradientStop1, GradientStop2);
+
+    Update(hwnd);
+    CursorHandler(hwnd);
+
+    Rsrces.pRenderTarget->BeginDraw();
+    Rsrces.pRenderTarget->FillRectangle(&RectToD2DRect(Rsrces.rc), Brushes.pLinearGradientBrush);
+
+    Rsrces.pRenderTarget->DrawBitmap(Bitmaps.pBitmapBgr, RectToD2DRect(Rsrces.rc), 0.15);
+    Rsrces.pRenderTarget->DrawBitmap(Bitmaps.pBitmapKey, BitmapRects.KeyBmp, 1);
+    Rsrces.pRenderTarget->DrawBitmap(Bitmaps.pBitmapEmail, BitmapRects.EmailBmp, 1);
+
+    WriteFormats.pTextFormatNewUser = WriteFormats.pTextFormatNormal;
+    WriteFormats.pTextFormatSignIn = WriteFormats.pTextFormatNormal;
+
+    HandleLogInAnimations();
+
+    Rsrces.pRenderTarget->DrawRoundedRectangle(RoundedRects.RoundEmail, Brushes.pWhiteBrush, 1.1, 0);
+    Rsrces.pRenderTarget->FillRoundedRectangle(RoundedRects.RoundNewUser, Brushes.pBlackBrush);
+    Rsrces.pRenderTarget->DrawRoundedRectangle(RoundedRects.RoundPassword, Brushes.pWhiteBrush, 1.1, 0);
+    Rsrces.pRenderTarget->FillRoundedRectangle(RoundedRects.RoundSignIn, Brushes.pBlackBrush);
+
+
+    CursorTimer();
+    DrawText();
+
+
+    if (GradientStop1 < 0.29)
     {
-        if (CursorBelongsToRect(hwnd, SignIn) || CursorBelongsToRect(hwnd, NewUser) || CursorBelongsToRect(hwnd, Fpassword))
-        {
-            SetCursor(hCursorHand);
-        }
-        else
-        {
-            SetCursor(hCursorArrow);
-        }
+        Brushes.pLinearGradientBrush2->Release();
     }
 
-    void DrawTextInBox(D2D1_RECT_F rect, wstring str)
+    Sleep(30);
+    Rsrces.pRenderTarget->EndDraw();
+}
+
+void SelectBox(int& button)
+{
+    if (button == MenuButtons.Aimbot)
     {
-        hr = pTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);  
-        rect.left +=10;
-        pRenderTarget->DrawTextW((WCHAR *)str.c_str(),str.length(), pTextFormat, rect, pWhiteBrush);
+        Rsrces.pRenderTarget->DrawRectangle({ BitmapRects.BmpBF.left,BitmapRects.BmpBF.top,BitmapRects.BmpBF.right,BitmapRects.BmpBF.bottom * 1 / 6 }, Brushes.pWhiteBrush, 4.f);
+        return; 
     }
-
-    void CursorTimer()
+    else if (button == MenuButtons.Visuals)
     {
-        if (bEmail && !bPassword && bTimebool && EmailStr.length() <= 1) 
-        {
-            DrawCursor({ Email.left + 10 ,Email.top + 3 }, { Email.left + 10 ,Email.bottom - 3 });
-        }
-        else if (bPassword && !bEmail && bTimebool && PasswordStr.length() <= 1)
-        {
-            DrawCursor({ Password.left + 10,Password.top + 3 }, { Password.left + 10,Password.bottom - 3 });
-        }
+        Rsrces.pRenderTarget->DrawRectangle({ BitmapRects.BmpBF.left,BitmapRects.BmpBF.bottom * 1 / 6,BitmapRects.BmpBF.right,BitmapRects.BmpBF.bottom * 2 / 6 }, Brushes.pWhiteBrush, 4.f);
+        return;
     }
-
-
-
-
-    void FillCheckBox(D2D1_RECT_F rect, ID2D1Brush* brush)
+    else if (button == MenuButtons.AntiAim)
     {
-        rect.left += (rect.right - rect.left) / 7;
-        rect.right -= (rect.right - rect.left) / 7;
-        rect.top += (rect.bottom - rect.top) / 7;
-        rect.bottom -= (rect.bottom - rect.top) / 7;
-        pRenderTarget->FillRectangle(rect, brush);
+        Rsrces.pRenderTarget->DrawRectangle({ BitmapRects.BmpBF.left,BitmapRects.BmpBF.bottom * 2 / 6,BitmapRects.BmpBF.right,BitmapRects.BmpBF.bottom * 3 / 6 }, Brushes.pWhiteBrush, 4.f);
+        return;
     }
-
-    void MakeCheckBox(D2D1_RECT_F& rect, ID2D1Brush* brush,bool& b)
+    else if (button == MenuButtons.SkinChanger)
     {
-        pRenderTarget->DrawRectangle(rect, brush);
-        if (b)
-        {
-            FillCheckBox(rect, brush);
-        }
+        Rsrces.pRenderTarget->DrawRectangle({ BitmapRects.BmpBF.left,BitmapRects.BmpBF.bottom * 3 / 6,BitmapRects.BmpBF.right,BitmapRects.BmpBF.bottom * 4 / 6 }, Brushes.pWhiteBrush, 4.f);
+        return;
     }
-
-
-    
-
-
-    void MakeSlider(D2D1_RECT_F rect, ID2D1Brush* pBrush,bool& b)
+    else if (button == MenuButtons.Settings)
     {
-        D2D1_ROUNDED_RECT rounded = { rect,15,15 };
-        pRenderTarget->DrawRoundedRectangle(rounded, pBrush);
-        D2D1_ELLIPSE ellipse = { {rect.left + (rect.right - rect.left) / 4,rect.top + (rect.bottom - rect.top) / 2}, 15,15 };
-        if (b)
-        {
-            ellipse.point = { rect.left + (rect.right - rect.left) * 3 / 4,rect.top + (rect.bottom - rect.top) / 2 };
-            SetCursor(hCursorHand);
-        }
-        pRenderTarget->FillEllipse(ellipse,pBrush);
-        SetCursor(hCursorArrow);
+        Rsrces.pRenderTarget->DrawRectangle({ BitmapRects.BmpBF.left,BitmapRects.BmpBF.bottom * 4 / 6,BitmapRects.BmpBF.right,BitmapRects.BmpBF.bottom * 5 / 6 }, Brushes.pWhiteBrush, 4.f);
+        return;
     }
-
-
-    void MakeButtonAnimation(D2D1_ROUNDED_RECT& rect, IDWriteTextFormat* &pTextFormatE)
+    else if(button == MenuButtons.Account)
     {
-        rect.rect.left += 20;
-        rect.rect.right -= 20;
-        rect.rect.top += 10;
-        rect.rect.bottom -= 10;
-        pTextFormatE = pTextFormat2;
+        Rsrces.pRenderTarget->DrawRectangle({ BitmapRects.BmpBF.left,BitmapRects.BmpBF.bottom * 5 / 6,BitmapRects.BmpBF.right,BitmapRects.BmpBF.bottom * 6 / 6 }, Brushes.pWhiteBrush, 4.f);
+        return;
     }
+}
 
-    void MakeLineAnimation(D2D1_POINT_2F& p1, D2D1_POINT_2F& p2)
+void SectionSelector(HWND hwnd,int& LastMenuButtonPushed)
+{
+    if (CursorBelongsToRect(hwnd, { BitmapRects.BmpBF.left,BitmapRects.BmpBF.top,BitmapRects.BmpBF.right,BitmapRects.BmpBF.bottom * 1 / 6 }))
     {
-        p1.x += 35;
-        p2.x -= 35;
-        Sleep(80);
+        LastMenuButtonPushed = MenuButtons.Aimbot;
+        return;
     }
-
-    float f11 = 0.1;
-    float f22 = 0.2;
-
-
-    void draw(HWND hwnd)
+    else if (CursorBelongsToRect(hwnd, { BitmapRects.BmpBF.left,BitmapRects.BmpBF.bottom * 1 / 6,BitmapRects.BmpBF.right,BitmapRects.BmpBF.bottom * 2 / 6 }))
     {
-      
-
-        if (f11  <= 0.29)         
-        {
-           f11 += 0.005;
-           f22 += 0.005;
-           gradientStops2[0].color = ColorF(ColorF::White, 1);
-           gradientStops2[0].position = f11;
-           gradientStops2[1].color = ColorF(ColorF::Black, 1);
-           gradientStops2[1].position = f22;
-
-           hr = pRenderTarget->CreateGradientStopCollection(gradientStops2, 2, D2D1_GAMMA_2_2, D2D1_EXTEND_MODE_CLAMP, &pGradientStops2);
-           hr = pRenderTarget->CreateLinearGradientBrush(LinearGradientBrushProperties(Point2F(0, 0), D2D1::Point2F(550, 1100)), pGradientStops2, &pLinearGradientBrush2);
-        }
-            
-
-           
-        Update(hwnd);
-        CursorHandler(hwnd);
-
-        pRenderTarget->BeginDraw();
-        pRenderTarget->FillRectangle(&RectToD2DRect(rc), pLinearGradientBrush);
-
-        pRenderTarget->DrawBitmap(pBitmapBgr, RectToD2DRect(rc), 0.15);
-        pRenderTarget->DrawBitmap(pBitmapKey, KeyBmp, 1);
-        pRenderTarget->DrawBitmap(pBitmapEmail, EmailBmp, 1);
-        pRenderTarget->DrawBitmap(pBitmapLock, LockBmp, 0.65);
-
-        D2D1_POINT_2F p01 = { Or.left, Or.bottom * 0.9 };
-        D2D1_POINT_2F p02 = { f1 / 2 - 20, Or.bottom * 0.9 };
-        D2D1_POINT_2F p11 = { f1 / 2 + 20 ,Or.bottom * 0.9 };
-        D2D1_POINT_2F p12 = { Or.right, Or.bottom * 0.9 };
-
-        pRenderTarget->DrawLine(p01, p02, pWhiteBrush, 0.3, NULL);
-        pRenderTarget->DrawLine(p11, p12, pWhiteBrush, 0.3, NULL);
-
-        pTextFormatNewUser = pTextFormat;
-        pTextFormatSignIn = pTextFormat;
-
-        if (bPushTimer)
-        {
-            MakeButtonAnimation(RoundNewUser, pTextFormatNewUser);
-        }
-
-        if (bPushTimer2)
-        {
-            MakeButtonAnimation(RoundSignIn, pTextFormatSignIn);
-        }
-
-        if (bPushTimer3)
-        {
-            MakeLineAnimation(pPointLineFp1, pPointLineFp2);
-        }
-
-        pRenderTarget->DrawRoundedRectangle(RoundEmail, pWhiteBrush, 1.1, 0);
-        pRenderTarget->FillRoundedRectangle(RoundNewUser, pBlackBrush);
-
-
-
-        pRenderTarget->DrawRoundedRectangle(RoundPassword, pWhiteBrush, 1.1, 0);
-        pRenderTarget->FillRoundedRectangle(RoundSignIn, pBlackBrush);
-
-
-        hr = pTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
-        hr = pTextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
-    
-        hr = pTextFormat2->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
-        hr = pTextFormat2->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
-        hr = pTextFormat3->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
-
-        
-         pRenderTarget->DrawTextW(L"Sign up as a new user", lstrlenW(L"Sign up as a new user"), pTextFormatNewUser, NewUser, pWhiteBrush);
-        
-       
-        pRenderTarget->DrawTextW(L"Sign in", lstrlenW(L"Sign in"), pTextFormatSignIn, SignIn, pWhiteBrush);
-        pRenderTarget->DrawTextW(L"or", lstrlenW(L"or"), pTextFormat, Or, pWhiteBrush);
-        pRenderTarget->DrawTextW(L"Forgot your password?", lstrlenW(L"Forgot your password?"), pTextFormat, Fpassword, pWhiteBrush); 
-
-        pRenderTarget->DrawLine( pPointLineFp1, pPointLineFp2, pWhiteBrush, 1.4, NULL);
-
-        pPushedNewUser = false;
-        pPushedSignIn = false;
-        pPushedForgotPassword = false;
-
-        hr = pTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
-
-        pRenderTarget->DrawTextW(L"Yamasu Cheats", lstrlenW(L"Yamasu Cheats"), pTextFormat3, Title, pLinearGradientBrush2);
-
-        
-
-        ///////////////////////////
-
-
-
-        if (!bEmail)
-        {
-            pRenderTarget->DrawTextW(L" - Email", lstrlenW(L" - Email"), pTextFormat, Email, pSemiOpaqueBrush);
-        }
-        if (!bPassword)
-        {
-            pRenderTarget->DrawTextW(L" - Password", lstrlenW(L" - Password"), pTextFormat, Password, pSemiOpaqueBrush);
-        }
-
-        CursorTimer();
-       
-        if (!EmailStr.empty())
-        {
-            DrawTextInBox(Email, EmailStr);
-        }
-
-        if (!PasswordStr.empty())
-        {
-             DrawTextInBox(Password, PasswordStr);
-        }     
-
-
-       if ( f11 < 0.29)
-       {
-           pLinearGradientBrush2->Release();
-       }
-
-        Sleep(30);
-        pRenderTarget->EndDraw();
-     }
-
-    
-
-    void construct(HWND hwnd)
-    {      
-        InitializeResources(hwnd);
-        CreateBrushes();
-        CreateFormats();
+        LastMenuButtonPushed = MenuButtons.Visuals;
+        return;
     }
-
-    void Destruct()
+    else if (CursorBelongsToRect(hwnd, { BitmapRects.BmpBF.left,BitmapRects.BmpBF.bottom * 2 / 6,BitmapRects.BmpBF.right,BitmapRects.BmpBF.bottom * 3 / 6 }))
     {
-        pDirect2dFactory->Release();
-        pRenderTarget->Release();
-        CoUninitialize();
+        LastMenuButtonPushed = MenuButtons.AntiAim;
+        return;
     }
+    else if (CursorBelongsToRect(hwnd, { BitmapRects.BmpBF.left,BitmapRects.BmpBF.bottom * 3 / 6,BitmapRects.BmpBF.right,BitmapRects.BmpBF.bottom * 4 / 6 }))
+    {
+        LastMenuButtonPushed = MenuButtons.SkinChanger;
+        return;
+    }
+    else if (CursorBelongsToRect(hwnd, { BitmapRects.BmpBF.left,BitmapRects.BmpBF.bottom * 4 / 6,BitmapRects.BmpBF.right,BitmapRects.BmpBF.bottom * 5 / 6 }))
+    {
+        LastMenuButtonPushed = MenuButtons.Settings;
+        return;
+    }
+    else if (CursorBelongsToRect(hwnd, { BitmapRects.BmpBF.left,BitmapRects.BmpBF.bottom * 5 / 6,BitmapRects.BmpBF.right,BitmapRects.BmpBF.bottom * 6 / 6 }))
+    {
+        LastMenuButtonPushed = MenuButtons.Account;
+        return;
+    }
+}
+
+
+void DrawMenu(HWND hwnd)
+{
+    Update(hwnd);
+    Rsrces.pRenderTarget->BeginDraw();
+    Rsrces.pRenderTarget->FillRectangle(&RectToD2DRect(Rsrces.rc), Brushes.pLinearGradientBrush3);
+    //Rsrces.pRenderTarget->FillRectangle({ BitmapRects.BmpBF.left,BitmapRects.BmpBF.top,BitmapRects.BmpBF.right,BitmapRects.BmpBF.bottom * 1 / 6 }, Brushes.pBlackBrush);
+    Rsrces.pRenderTarget->DrawBitmap(Bitmaps.pBitmapHs, BitmapRects.BitmapHs, 0.7);
+    Rsrces.pRenderTarget->DrawBitmap(Bitmaps.pBitmapVisual, BitmapRects.BitmapVisual, 0.8);
+    Rsrces.pRenderTarget->DrawBitmap(Bitmaps.pBitmapAA, BitmapRects.BitmapAA, 0.7);
+    Rsrces.pRenderTarget->DrawBitmap(Bitmaps.pBitmapSkinChanger, BitmapRects.BitmapSkinChanger, 0.8);
+    Rsrces.pRenderTarget->DrawBitmap(Bitmaps.pBitmapSettings, BitmapRects.BitmapSettings, 0.8);
+    Rsrces.pRenderTarget->DrawBitmap(Bitmaps.pBitmapAccount, BitmapRects.BitmapAccount, 0.8);
+    Rsrces.pRenderTarget->DrawRectangle({ width / 5, 15, width - 25, heigth - 15 }, Brushes.pWhiteBrush);
+
+
+    SelectBox(LastMenuButtonPushed);
+    MakeSlideBar(hwnd,RectToRoundedRect(Rect2,15,15), Brushes.pWhiteBrush, Brushes.pBlackBrush,GlobalCount);
+
+
+
+    Rsrces.pRenderTarget->DrawText(L"Player ESP", lstrlenW(L"Player Esp"), WriteFormats.pTextFormatBigItalic, TextBoxRectsESP.RectESP, Brushes.pWhiteBrush);
+    Rsrces.pRenderTarget->DrawText(L"Snaplines", lstrlenW(L"Snaplines"), WriteFormats.pTextFormatNormal, TextBoxRectsESP.RectSL, Brushes.pWhiteBrush);
+    Rsrces.pRenderTarget->DrawText(L"2DBoxESP", lstrlenW(L"2DBoxESP"), WriteFormats.pTextFormatNormal, TextBoxRectsESP.Rect2DBox, Brushes.pWhiteBrush);
+    Rsrces.pRenderTarget->DrawText(L"3DBoxESP", lstrlenW(L"3DBoxESP"), WriteFormats.pTextFormatNormal, TextBoxRectsESP.Rect3DBox, Brushes.pWhiteBrush);
+    Rsrces.pRenderTarget->DrawText(L"GlowESP", lstrlenW(L"GlowESP"), WriteFormats.pTextFormatNormal, TextBoxRectsESP.RectGlow, Brushes.pWhiteBrush);
+    Rsrces.pRenderTarget->DrawText(L"SkeletonESP", lstrlenW(L"SkeletonESP"), WriteFormats.pTextFormatNormal, TextBoxRectsESP.RectSkeleton, Brushes.pWhiteBrush);
+
+
+    DrawCheckBox(CheckBoxRectsESP.r1, Brushes.pWhiteBrush, bools.xl);
+    DrawCheckBox(CheckBoxRectsESP.r2, Brushes.pWhiteBrush, bools.xl2);
+    DrawCheckBox(CheckBoxRectsESP.r3, Brushes.pWhiteBrush, bools.xl3);
+    DrawCheckBox(CheckBoxRectsESP.r4, Brushes.pWhiteBrush, bools.xl4);
+    DrawCheckBox(CheckBoxRectsESP.r5, Brushes.pWhiteBrush, bools.xl5);
+    DrawCheckBox(CheckBoxRectsESP.r6, Brushes.pWhiteBrush, bools.xl6);
+
+    Rsrces.pRenderTarget->EndDraw();
+}
+
+
+void Destruct()
+{
+    Rsrces.pDirect2dFactory->Release();
+    Rsrces.pRenderTarget->Release();
+    CoUninitialize();
+}
 
 
 

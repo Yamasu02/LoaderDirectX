@@ -1,5 +1,5 @@
 #pragma once
-
+/*
 #include <d3d9.h>
 #include <d3dx9.h>
 
@@ -11,38 +11,40 @@
 
     IDirect3D9Ex* d3dObject = NULL;
     IDirect3DDevice9Ex* d3dDevice = NULL;
-    D3DPRESENT_PARAMETERS d3dparams;
+    D3DPRESENT_PARAMETERS d3dpp;
     ID3DXFont* d3dFont = 0;
     RECT rect = { 0 };
-    D3DXVECTOR3 v1 = { 500,500,0 };
+    const D3DXVECTOR3 v1 = { 0,0,0 };
     D3DXVECTOR3 v2 = {};
 
     LPDIRECT3DTEXTURE9 imagetex; 
     LPD3DXSPRITE sprite; 
     D3DXVECTOR3 imagepos; 
+    D3DXMATRIX m = { 1.2f, 0.0f, 0.0f, 0.0f,
+    0.0f, 1.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, 1.0f, 0.0f,
+    0.0f, 0.0f, 0.0f, 1.0f };
 
     HRESULT InitializeTextureNsprite(LPCWSTR path)
     {
-        hr = D3DXCreateTextureFromFileW(d3dDevice, path, &imagetex);
-        //D3DXCreateTextureFromResourceW(d3dDevice, NULL, L"email.png", &imagetex);
-        hr = D3DXCreateSprite(d3dDevice, &sprite);
-        imagepos.x = 0.0f; 
-        imagepos.y = 0.0f; 
-        imagepos.z = 0.0f; 
+        Rsrces.hr = D3DXCreateTextureFromFile(d3dDevice, L"C:\\Users\\Supreme1337\\source\\repos\\Yamasu02\\LoaderDirectX\\Debug\\test.png", &imagetex);
+        Rsrces.hr = D3DXCreateSprite(d3dDevice, &sprite);
+        sprite->SetTransform(&m);
+        imagepos.x = 0.0f; //coord x of our sprite
+        imagepos.y = 0.0f; //coord y of out sprite
+        imagepos.z = 0.0f;
         return S_OK;
     }
 
     HRESULT RenderImage()
     {
-        if (SUCCEEDED(d3dDevice->BeginScene()))
-        {
-            sprite->Begin(D3DXSPRITE_ALPHABLEND);
-            hr = sprite->Draw(imagetex, NULL, NULL, &imagepos, 0xFFFFFFFF);
-            sprite->End();
-            d3dDevice->EndScene();
-            return S_OK;
-        }
-        return E_FAIL; 
+        
+        d3dDevice->BeginScene();
+        sprite->Begin(D3DXSPRITE_ALPHABLEND );//D3DXSPRITE_ALPHABLEND
+        Rsrces.hr = sprite->Draw(imagetex, NULL, &v1, &imagepos, 0xFFFFFFFF);
+        sprite->End();
+        d3dDevice->EndScene();
+        return S_OK;
     }
 
     
@@ -57,22 +59,20 @@
             exit(1);
         }
 
-        RtlSecureZeroMemory(&d3dparams, sizeof(d3dparams));
+    
+        ZeroMemory(&d3dpp, sizeof(d3dpp)); //to be sure d3dpp is empty
+        d3dpp.Windowed = true; //use our global windowed variable to tell if the program is windowed or not
+        d3dpp.hDeviceWindow = hwnd; //give the window handle of the window we created above
+        d3dpp.BackBufferCount = 1; //set it to only use 1 backbuffer
+        d3dpp.BackBufferWidth = 1100; //set the buffer to our window width
+        d3dpp.BackBufferHeight = 700; //set the buffer to out window height
+        d3dpp.BackBufferFormat = D3DFMT_X8R8G8B8; //the backbuffer format
+        d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD; //SwapEffect
 
-        d3dparams.BackBufferWidth = width;
-        d3dparams.BackBufferHeight = height;
-        d3dparams.Windowed = TRUE;
-        d3dparams.SwapEffect = D3DSWAPEFFECT_DISCARD;
-        d3dparams.hDeviceWindow = hwnd;
-        d3dparams.MultiSampleQuality = D3DMULTISAMPLE_NONE;
-        d3dparams.BackBufferFormat = D3DFMT_A8R8G8B8;
-        d3dparams.EnableAutoDepthStencil = TRUE;
-        d3dparams.AutoDepthStencilFormat = D3DFMT_D16;
-
-        HRESULT res = d3dObject->CreateDeviceEx(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hwnd, D3DCREATE_HARDWARE_VERTEXPROCESSING, &d3dparams, 0, &d3dDevice);
+        HRESULT res = d3dObject->CreateDeviceEx(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hwnd, D3DCREATE_HARDWARE_VERTEXPROCESSING, &d3dpp, 0, &d3dDevice);
 
         D3DXCreateFont(d3dDevice, 50, 0, FW_BOLD, 1, false, DEFAULT_CHARSET, OUT_DEVICE_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH,L"Comic Sans", &d3dFont);
-        InitializeTextureNsprite(L"C:\\Users\\Supreme1337\\Desktop\\icons\\bgr.png");
+        InitializeTextureNsprite(L"test.png");
     }
 
     void drawText(char* String, int x, int y, int a, int r, int g, int b)
@@ -113,4 +113,4 @@
         if (imagetex)
             imagetex->Release();
     }
-
+    */
