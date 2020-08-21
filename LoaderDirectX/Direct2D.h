@@ -229,7 +229,7 @@ void DrawLogIn(HWND hwnd)
 {
     IncreaseGradientPosition(GradientStop1, GradientStop2);
 
-    Update(hwnd);
+
     CursorHandler(hwnd);
 
     Rsrces.pRenderTarget->BeginDraw();
@@ -334,7 +334,7 @@ void SectionSelector(HWND hwnd,int& LastMenuButtonPushed)
 
 void DrawMenu(HWND hwnd)
 {
-    Update(hwnd);
+
     Rsrces.pRenderTarget->BeginDraw();
     Rsrces.pRenderTarget->FillRectangle(&RectToD2DRect(Rsrces.rc), Brushes.pLinearGradientBrush3);
     //Rsrces.pRenderTarget->FillRectangle({ BitmapRects.BmpBF.left,BitmapRects.BmpBF.top,BitmapRects.BmpBF.right,BitmapRects.BmpBF.bottom * 1 / 6 }, Brushes.pBlackBrush);
@@ -348,7 +348,7 @@ void DrawMenu(HWND hwnd)
 
 
     SelectBox(LastMenuButtonPushed);
-    MakeSlideBar(hwnd,RectToRoundedRect(Rect2,15,15), Brushes.pWhiteBrush, Brushes.pBlackBrush,GlobalCount);
+    MakeSlideBar(hwnd, RectToRoundedRect(Rect2, 15, 15), Brushes.pWhiteBrush, Brushes.pBlackBrush, GlobalCount);
 
 
 
@@ -367,6 +367,9 @@ void DrawMenu(HWND hwnd)
     DrawCheckBox(CheckBoxRectsESP.r5, Brushes.pWhiteBrush, bools.xl5);
     DrawCheckBox(CheckBoxRectsESP.r6, Brushes.pWhiteBrush, bools.xl6);
 
+
+
+    Rsrces.pRenderTarget->FillEllipse({ { x,y }, 5, 5 }, Brushes.pWhiteBrush);
     Rsrces.pRenderTarget->EndDraw();
 }
 

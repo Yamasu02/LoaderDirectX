@@ -6,7 +6,6 @@ void DrawCursor(D2D1_RECT_F rect, ID2D1Brush* pBrush)
 }
 
 
-
 void DrawTextInBox(D2D1_RECT_F rect, IDWriteTextFormat* pTextFormat,wstring str)
 {
     pTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
@@ -14,13 +13,8 @@ void DrawTextInBox(D2D1_RECT_F rect, IDWriteTextFormat* pTextFormat,wstring str)
     Rsrces.pRenderTarget->DrawTextW((WCHAR*)str.c_str(), str.length(), pTextFormat, rect, Brushes.pWhiteBrush);
 }
 
-enum CheckBoxStyle
-{
-    tick = 1,
-    fill = 2
-};
 
-void DrawCheckBox(D2D1_RECT_F rect, ID2D1Brush* brush, bool b)
+void DrawCheckBox(D2D1_RECT_F rect, ID2D1Brush* brush, bool b,int mode)
 {
     Rsrces.pRenderTarget->DrawRectangle(rect, brush);
     if (b)
@@ -29,9 +23,16 @@ void DrawCheckBox(D2D1_RECT_F rect, ID2D1Brush* brush, bool b)
         rect.right -= (rect.right - rect.left) / 7;
         rect.top += (rect.bottom - rect.top) / 7;
         rect.bottom -= (rect.bottom - rect.top) / 7;
-        Rsrces.pRenderTarget->DrawLine({ rect.left,rect.top + ((rect.bottom - rect.top) / 2) }, { rect.left + ((rect.right - rect.left) / 2),rect.bottom }, Brushes.pWhiteBrush, 2);
-        Rsrces.pRenderTarget->DrawLine({ rect.left + ((rect.right - rect.left) / 2),rect.bottom }, { rect.right,rect.top }, Brushes.pWhiteBrush, 2);
-        //Rsrces.pRenderTarget->FillRectangle(rect, brush);
+        if (mode == 1)
+        {
+            Rsrces.pRenderTarget->FillRectangle(rect, brush);
+        }
+
+        else if (mode == 2)
+        {
+            Rsrces.pRenderTarget->DrawLine({ rect.left,rect.top + ((rect.bottom - rect.top) / 2) }, { rect.left + ((rect.right - rect.left) / 2),rect.bottom }, Brushes.pWhiteBrush, 2);
+            Rsrces.pRenderTarget->DrawLine({ rect.left + ((rect.right - rect.left) / 2),rect.bottom }, { rect.right,rect.top }, Brushes.pWhiteBrush, 2);
+        }
     }
 }
 

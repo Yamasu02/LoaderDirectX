@@ -186,7 +186,21 @@ struct bools
 FLOAT width;
 FLOAT heigth;
 
+FLOAT x = 100;
+FLOAT y = 100;
 
+void k()
+{
+	for (FLOAT j = 0; j <= 30; j++)
+	{
+		y += j;
+		Sleep(100);
+		if (y == 130)
+		{
+			y = 100;
+		}
+	}
+}
 float GradientStop1 = 0.1;
 float GradientStop2 = 0.2;
 

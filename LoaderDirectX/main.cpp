@@ -108,13 +108,14 @@ LRESULT CALLBACK WinProcMenu(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 }
 
 
+
+
 int CALLBACK  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdSHow)
 {
-	auto xd = 0x2424c9d7e3a;
-	auto ree = xd ^ 0x5a;
-	cout << ree;
+	auto xd = 0x681C7452310E5632;
+	auto ree = xd ^ 0x681C75805DE8EEA2;
+
 	WNDCLASSEX wc = { 0 };
-	WNDCLASSEX wc2 = { 0 };
 	wc.cbSize = sizeof(wc);
 	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 	wc.lpfnWndProc = (WNDPROC)WinProc;
@@ -143,12 +144,14 @@ int CALLBACK  WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)*Timer, 0, 0, 0);
 	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)*AnimationManager, 0, 0, 0);
 	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)*Networking, 0, 0, 0);
+	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)*k, 0, 0, 0);
 
 	MapSharedMemory();
 
 	MSG msg;
 	while (GetMessage(&msg, 0, 0, 0))
 	{
+		Update(hWnd);
 		if (GetAsyncKeyState(VK_TAB))
 		{
 			SetWindowLongPtrA(hWnd, GWLP_WNDPROC, (LONG_PTR)WinProcMenu);
